@@ -1,0 +1,104 @@
+# Builds the course content with the same toolchain MDN uses (`rari` to build
+# the documents, `fred` to render them) and publishes the result to this
+# repository's GitHub Pages site.
+#
+# Before the first run, set Settings > Pages > Build and deployment > Source
+# to "GitHub Actions".
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "files/en-us/learn_web_development/extensions/server-side/django/**"
+      - ".github/scripts/prepare-pages.mjs"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one deployment at a time, and let a running one finish rather than
+# cancelling it half-way through publishing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # Whitespace-separated content paths to publish. Every *.md below them is
+  # built. Building the whole of `files/en-us` produces ~14,600 pages and well
+  # over the 1 GB that GitHub Pages will serve, so keep this scoped.
+  CONTENT_PATHS: files/en-us/learn_web_development/extensions/server-side/django
+  # Where the site root redirects to.
+  HOME_PATH: /en-US/docs/Learn_web_development/Extensions/Server-side/Django
+  # Matches the value baked into `npm run build` in package.json.
+  BUILD_OUT_ROOT: build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: Build content
+        env:
+          CONTENT_ROOT: ${{ github.workspace }}/files
+          # Used by `rari` to avoid rate limiting when it queries the GitHub API.
+          GITHUB_TOKEN: ${{ github.token }}
+          BUILD_NO_PROGRESSBAR: true
+        run: |
+          read -ra paths <<< "$CONTENT_PATHS"
+          find "${paths[@]}" -name '*.md' -print0 \
+            | xargs -0 --no-run-if-empty npx @mdn/rari build --no-basic
+
+          # `fred ssr` renders the pages but does not copy its own stylesheets
+          # and scripts, so put them in place first.
+          cp -R node_modules/@mdn/fred/out/. "$BUILD_OUT_ROOT"
+
+          npx @mdn/fred ssr
+
+      - name: Prepare for Pages
+        run: |
+          node .github/scripts/prepare-pages.mjs \
+            "$BUILD_OUT_ROOT" \
+            "${{ steps.pages.outputs.base_path }}" \
+            "$HOME_PATH"
+          du -sh "$BUILD_OUT_ROOT"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ${{ env.BUILD_OUT_ROOT }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
