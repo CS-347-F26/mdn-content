@@ -2,6 +2,10 @@
 # the documents, `fred` to render them) and publishes the result to this
 # repository's GitHub Pages site.
 #
+# Because the result is a modified copy of MDN's documentation, every page is
+# published with a banner pointing at the official page, a `noindex` directive,
+# and a canonical link to developer.mozilla.org.
+#
 # Before the first run, set Settings > Pages > Build and deployment > Source
 # to "GitHub Actions".
 
@@ -37,6 +41,14 @@ env:
   HOME_PATH: /en-US/docs/Learn_web_development/Extensions/Server-side/Django
   # Matches the value baked into `npm run build` in package.json.
   BUILD_OUT_ROOT: build
+  # Banner shown at the top of every published page. Plain HTML. Every page is
+  # also served with `noindex` and a canonical link back to MDN, so this copy
+  # stays out of search results.
+  PAGES_NOTICE: >-
+    <strong>Unofficial copy.</strong> These pages are a modified mirror of MDN
+    Web Docs kept for <a href="https://w3.cs.jmu.edu/cs347">CS 347</a>. They are
+    not maintained or reviewed by Mozilla, and the content differs from the
+    original.
 
 jobs:
   build:

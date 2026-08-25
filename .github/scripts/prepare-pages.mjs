@@ -17,9 +17,14 @@
  *   `https://developer.mozilla.org`, so the site stays navigable instead of
  *   serving 404s.
  *
+ * Because the result is a modified copy of someone else's documentation, every
+ * page also gets a banner pointing at the official MDN page, a `noindex` robots
+ * directive, and a canonical link to MDN, so a reader (or a crawler) who lands
+ * here is sent to the real thing. Set `PAGES_NOTICE` to change the wording.
+ *
  * It also writes the `.nojekyll` marker that stops Pages from running Jekyll
- * (which would drop the `_`-prefixed files that MDN's output contains), and a
- * root `index.html` that redirects to the landing page.
+ * (which would drop the `_`-prefixed files that MDN's output contains),
+ * a `robots.txt`, and a root `index.html` that redirects to the landing page.
  *
  * Usage: node .github/scripts/prepare-pages.mjs <buildRoot> <basePath> <homePath>
  */
@@ -30,6 +35,47 @@ import path from "node:path";
 import process from "node:process";
 
 const UPSTREAM = "https://developer.mozilla.org";
+
+const NOTICE =
+  process.env.PAGES_NOTICE ||
+  "<strong>Unofficial copy.</strong> These pages are a modified mirror of MDN " +
+    'Web Docs kept for <a href="https://w3.cs.jmu.edu/cs347">CS 347</a>. They ' +
+    "are not maintained or reviewed by Mozilla, and the content differs from " +
+    "the original.";
+
+const NOTICE_STYLE = [
+  "box-sizing:border-box",
+  "margin:0",
+  "padding:0.7rem 1rem",
+  "background:#ffe9a8",
+  "color:#2b2000",
+  "border-bottom:2px solid #c9971a",
+  "font:500 0.95rem/1.5 system-ui,-apple-system,sans-serif",
+  "text-align:center",
+].join(";");
+
+const NOTICE_LINK_STYLE =
+  "color:#5a3d00;text-decoration:underline;font-weight:700";
+
+/**
+ * The banner shown at the top of every page.
+ *
+ * @param {string | undefined} mdnUrl the official page this one was copied from
+ */
+function notice(mdnUrl) {
+  const href = mdnUrl ?? UPSTREAM;
+  const label = mdnUrl ? "Read the official page on MDN" : "Go to MDN Web Docs";
+  // Links written into PAGES_NOTICE get the same styling as the one we add,
+  // so the notice can be plain HTML.
+  const body = NOTICE.replace(
+    /<a (?![^>]*\bstyle=)/gi,
+    `<a style="${NOTICE_LINK_STYLE}" `,
+  );
+  return (
+    `<aside role="note" style="${NOTICE_STYLE}">${body} ` +
+    `<a href="${href}" style="${NOTICE_LINK_STYLE}">${label}</a>.</aside>`
+  );
+}
 
 const [buildRoot, rawBasePath = "", homePath = "/"] = process.argv.slice(2);
 
@@ -149,6 +195,21 @@ for (const file of files) {
     },
   );
 
+  // This is a copy of someone else's documentation: say so, keep it out of
+  // search results, and point both readers and crawlers at the original.
+  const mdnUrl = original.match(
+    /<meta\s+name="og:url"\s+content="([^"]+)"/i,
+  )?.[1];
+
+  updated = updated.replace(
+    /<head(\s[^>]*)?>/i,
+    (tag) =>
+      `${tag}<meta name="robots" content="noindex, nofollow">` +
+      (mdnUrl ? `<link rel="canonical" href="${mdnUrl}">` : ""),
+  );
+
+  updated = updated.replace(/<body(\s[^>]*)?>/i, (tag) => tag + notice(mdnUrl));
+
   if (updated !== original) {
     await writeFile(file, updated);
   }
@@ -156,11 +217,21 @@ for (const file of files) {
 
 await writeFile(path.join(buildRoot, ".nojekyll"), "");
 
+// Note that a project site is served from a sub-path, so crawlers read the
+// robots.txt at the *domain* root, not this one. The per-page `noindex` above
+// is what actually keeps these pages out of search results; this file is here
+// for anyone who looks, and for the case where the site moves to its own host.
+await writeFile(
+  path.join(buildRoot, "robots.txt"),
+  "User-agent: *\nDisallow: /\n",
+);
+
 const home = resolve(homePath);
 await writeFile(
   path.join(buildRoot, "index.html"),
   `<!doctype html>
 <meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
 <title>Redirecting…</title>
 <meta http-equiv="refresh" content="0; url=${home}">
 <link rel="canonical" href="${home}">
