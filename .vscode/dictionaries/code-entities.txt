@@ -935,6 +935,7 @@ webxrdevice
 wentaway
 wght
 wimax
+winget
 WM_MOUSEHWHEEL
 wordprocessingml
 workon

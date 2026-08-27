@@ -71,7 +71,7 @@ The Django project _recommends_ (and "officially supports") using the newest ava
 
 There are three places to download Django:
 
-- The Python Package Repository (PyPi), using the _pip_ tool. This is the best way to get the latest stable version of Django.
+- The Python Package Repository (PyPi), using a package manager such as _uv_ (or the older _pip_). This is the best way to get the latest stable version of Django.
 - Use a version from your computer's package manager. Distributions of Django that are bundled with operating systems offer a familiar installation mechanism. Note however that the packaged version may be quite old, and can only be installed into the system Python environment (which may not be what you want).
 - Install from source. You can get and install the latest bleeding-edge version of Django from the source. This is not recommended for beginners but is needed when you're ready to start contributing back to Django itself.
 
@@ -97,108 +97,77 @@ If you install Django into the default/global environment then you will only be 
 
 As a result, experienced Python/Django developers typically run Python apps within independent _Python virtual environments_. This enables multiple different Django environments on a single computer. The Django developer team itself recommends that you use Python virtual environments!
 
-This module assumes that you've installed Django into a virtual environment, created with the standard library's `venv` module in a folder named **.venv** at the root of the project it belongs to. We'll show you how below.
+This module assumes that you've installed Django into a virtual environment, created with _uv_ in a folder named **.venv** at the root of the project it belongs to. We'll show you how below.
 
 ## Installing Python 3
 
-In order to use Django you must have Python 3 on your operating system.
-You will also need the [Python Package Index](https://pypi.org/) tool — _pip_ — which is used to manage (install, update, and remove) Python packages/libraries used by Django and your other Python apps.
+To use Django you need Python 3, a way to install Python packages, and a way to keep each project's packages separate from every other project's.
+
+This module uses [uv](https://docs.astral.sh/uv/) for all three.
+uv is a single self-contained tool that downloads and manages Python interpreters, creates virtual environments, resolves and installs packages, and records exactly what it installed so that anyone else can reproduce it.
+It replaces the `python -m venv`, `pip`, and `pip freeze` commands you will see in older tutorials, and it is dramatically faster than all of them.
+
+The practical consequence is that **you do not need to install Python first**: uv fetches an interpreter itself the first time a project needs one.
+If you also want a system-wide Python for unrelated work, you can download one from <https://www.python.org/downloads/>, but nothing in this module requires it.
 
 Django 6.1 runs on Python 3.12, 3.13, and 3.14 (see [FAQ: Installation](https://docs.djangoproject.com/en/6.1/faq/install/#what-python-version-can-i-use-with-django)).
-The Django project _recommends_ (and "officially supports") the newest available version of the supported Python releases, which at the time of writing is Python 3.14.
+The Django project _recommends_ (and "officially supports") the newest available version of the supported Python releases, which at the time of writing is Python 3.14 — and that is the version uv will choose for you.
 
-Throughout this module we invoke the interpreter and its package manager using the bare commands `python` and `pip`, on every operating system.
-This works everywhere once you have [activated a virtual environment](#using_a_virtual_environment), because the environment puts its own `python` and `pip` at the front of your path.
-The one command that runs _before_ any environment exists is the one that creates it, so start by making sure the bare `python` command already resolves to a Python 3.12+ installation.
-
-> [!NOTE]
-> If `python -V` reports "command not found", the interpreter is installed but only reachable under a version-qualified name.
-> Add your Python installation's `bin` (or `Scripts`) directory to your `PATH` — the python.org installers offer to do this for you, and on Ubuntu the `python-is-python3` package provides the short name.
-
-This section briefly explains how to check what version of Python is present, and install a new one as needed, for Ubuntu Linux, macOS, and Windows.
-
-> [!NOTE]
-> Depending on your platform, you may also be able to install Python/pip from the operating system's own package manager or via other mechanisms. For most platforms, you can download the required installation files from <https://www.python.org/downloads/> and install them using the appropriate platform-specific method.
+Throughout this module we invoke the interpreter as `python`. That works on every operating system once you have [activated a virtual environment](#using_a_virtual_environment), because the environment puts its own interpreter at the front of your path.
 
 ### Ubuntu 24.04
 
-Ubuntu Linux 24.04 LTS includes Python 3.12 by default, which is new enough for Django 6.1.
-However, the bare `python` command, the `pip` tool, and the module used to create virtual environments are **not** all available out of the box.
-Install them in the bash terminal using:
+Install uv using the official installer:
 
 ```bash
-sudo apt install python3-full python-is-python3
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-You can then confirm the version:
+The installer puts uv in **~/.local/bin** and adds that folder to your path.
+Open a new terminal, and check that it worked:
 
 ```bash
-python -V
-# Output: Python 3.12.3
+uv --version
 ```
 
 > [!NOTE]
-> The `python-is-python3` package is what makes the short `python` command available on Ubuntu, and `python3-full` bundles the `venv` module and `pip` that we use in the next sections.
-> On Ubuntu, the system-wide Python installation is "externally managed", which means `pip` refuses to install packages into it.
-> That is not a problem for us: we install everything into a virtual environment instead, which is the recommended practice anyway.
+> Ubuntu also packages Python, but the system Python is "externally managed" — you cannot install packages into it, and it may not be a version Django 6.1 supports.
+> Letting uv manage the interpreter avoids both problems.
 
 ### macOS
 
-macOS does not include a suitable Python by default.
-You can check what you have by running the following command in the terminal:
+Install uv using the official installer:
 
 ```bash
-python -V
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-This will either display the Python version number, or a "command not found" message, which indicates Python was not found.
+If you use [Homebrew](https://brew.sh/) you can instead run `brew install uv`.
 
-You can install Python (along with the _pip_ tool) from [python.org](https://www.python.org/):
-
-1. Download the required installer:
-   1. Go to <https://www.python.org/downloads/macos/>
-   2. Download the stable release of the most recent [supported version](https://docs.djangoproject.com/en/6.1/faq/install/#what-python-version-can-i-use-with-django) that works with Django 6.1.
-      (at the time of writing this is Python 3.14).
-
-2. Locate the file using _Finder_, and double-click the package file. Following the installation prompts.
-
-You can now confirm successful installation by running `python -V` again and checking for the Python version number.
-
-You can similarly check that _pip_ is installed by listing the available packages:
+Open a new terminal, and check that it worked:
 
 ```bash
-pip list
+uv --version
 ```
 
 ### Windows 10 or 11
 
-Windows doesn't include Python by default, but you can easily install it (along with the _pip_ tool) from [python.org](https://www.python.org/):
-
-1. Download the required installer:
-   1. Go to <https://www.python.org/downloads/windows/>
-   2. Download the stable release of the most recent [supported version](https://docs.djangoproject.com/en/6.1/faq/install/#what-python-version-can-i-use-with-django) that works with Django 6.1.
-      (at the time of writing this is Python 3.14).
-
-2. Install Python by double-clicking on the downloaded file and following the installation prompts
-3. Be sure to check the box labeled "Add Python to PATH"
-
-You can then verify that Python was installed by entering the following text into the command prompt:
+Install uv from PowerShell:
 
 ```bash
-python -V
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-The Windows installer incorporates _pip_ (the Python package manager) by default.
-You can list installed packages as shown:
+If you use the Windows package manager you can instead run `winget install --id=astral-sh.uv -e`.
+
+Open a new terminal, and check that it worked:
 
 ```bash
-pip list
+uv --version
 ```
 
 > [!NOTE]
-> The installer should set up everything you need for the above commands to work.
-> If however you get a message that Python cannot be found, you may have forgotten to add it to your system path.
-> You can do this by running the installer again, selecting "Modify", and checking the box labeled "Add Python to environment variables" on the second page.
+> Whichever platform you are on, you can update uv later with `uv self update` (or through your package manager, if you installed it that way).
 
 ## Source code management with Git and GitHub
 
@@ -370,9 +339,9 @@ This repo is the project folder for the rest of the module: the virtual environm
 
 ## Using Django inside a Python virtual environment
 
-Now that you have a project folder — the **django_local_library** repo you cloned in the previous section — you can create the Python virtual environment that the rest of this module runs inside.
+Now that you have a project folder — the **django_local_library** repo you cloned in the previous section — you can describe the project to uv and create the Python virtual environment that the rest of this module runs inside.
 
-Throughout this module, and for every Django project you create afterwards, the rule is the same: **the virtual environment lives in a folder named `.venv` at the root of the project it belongs to**.
+Throughout this module, and for every Django project you create afterwards, the rule is the same: **the virtual environment lives in a folder named `.venv` at the root of the project it belongs to**, which is also where uv puts it by default.
 Keeping it beside the code, under a predictable name, means that:
 
 - Every project gets its own independent set of packages, so a site pinned to an older Django keeps working after you install a newer Django for something else.
@@ -380,24 +349,47 @@ Keeping it beside the code, under a predictable name, means that:
 - There is nothing to remember: activating the environment is always the same command, run from the project root.
 - Discarding the environment is just deleting the **.venv** folder, and recreating it is a single command.
 
-The `venv` module used to create the environment is part of the Python standard library, so there is nothing extra to install first.
-
 ### Creating a virtual environment
 
-Open a command shell (or terminal window), navigate to the root of your project, and create the environment:
+Open a command shell (or terminal window), navigate to the root of your project, and describe the project to uv:
 
 ```bash
 cd django_local_library
-python -m venv .venv
+uv init --bare --python 3.12
 ```
 
-This creates a **.venv** folder inside **django_local_library** that contains a private copy of the interpreter along with its own package directory.
-The command prints nothing when it succeeds.
+**pyproject.toml** is the standard file for describing a Python project, and it is where your dependencies will be listed.
+`--bare` tells uv to create only that file and leave the rest of your repository alone, and `--python 3.12` records the oldest Python the project supports — 3.12, because that is the oldest release Django 6.1 runs on.
+The file it writes looks like this:
+
+```toml
+[project]
+name = "django-local-library"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+```
+
+The name comes from your folder, normalized to the form Python packaging uses, so **django_local_library** becomes `django-local-library`.
+
+Now create the environment:
+
+```bash
+uv venv
+```
+
+```plain
+Using CPython 3.14.7
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+```
+
+uv downloads a suitable interpreter if it cannot find one already — the newest release allowed by `requires-python` — and creates a **.venv** folder holding that interpreter and its own package directory.
 
 > [!NOTE]
 > The **.venv** folder must never be committed to git: it contains thousands of installed files, and it is not portable between machines or operating systems.
 > This is why we added `.venv/` to **.gitignore** in the previous section.
-> The **requirements.txt** file created below is what actually records your dependencies for other people (and for your production server).
+> **pyproject.toml** and the **uv.lock** file described below are what record your dependencies for other people (and for your production server), and those two _are_ committed.
 
 ### Using a virtual environment
 
@@ -421,7 +413,7 @@ You can tell that it worked because your prompt is now prefixed with the name of
 (.venv) ubuntu@ubuntu:~/django_local_library$
 ```
 
-From this point on `python` and `pip` refer to the environment's own copies on every platform, and anything you install with `pip` goes into **.venv** rather than into your system-wide Python.
+From this point on `python` refers to the environment's own copy on every platform, and anything uv installs goes into **.venv** rather than into a system-wide Python.
 
 > [!NOTE]
 > If PowerShell refuses to run the activation script with a message about the execution policy, allow locally created scripts for the current user by running `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` and then try again.
@@ -430,21 +422,44 @@ There are just a few other commands you should know:
 
 - `deactivate` — exit the current virtual environment (your prompt loses the `(.venv)` prefix).
 - `source .venv/bin/activate` (or the Windows equivalent above) — re-enter it. You need to do this in every new terminal you open.
-- Deleting the **.venv** folder — remove the environment completely. To rebuild it, run `python -m venv .venv` again, activate it, and reinstall the dependencies with `pip install -r requirements.txt`.
+- Deleting the **.venv** folder — remove the environment completely. To rebuild it, run `uv sync`, which recreates **.venv** and installs exactly the packages recorded in **uv.lock**.
 
 > [!NOTE]
 > From now on in this article (and indeed in this module) please assume that every command is run from the project root with the virtual environment activated.
 
 ## Installing Django
 
-With the environment activated, install Django from PyPI using `pip`:
+With the project set up, add Django as a dependency:
 
 ```bash
-pip install django~=6.1
+uv add "django~=6.1"
 ```
 
-The `~=6.1` specifier installs the newest 6.1.x release and accepts future 6.1 patch releases, but not Django 6.2 or later.
+```plain
+Resolved 5 packages in 205ms
+Prepared 3 packages in 483ms
+Installed 3 packages in 65ms
+ + asgiref==3.12.1
+ + django==6.1
+ + sqlparse==0.6.0
+```
+
+That one command does three things: it records `django~=6.1` in **pyproject.toml**, installs Django and everything it depends on into **.venv**, and writes a **uv.lock** file pinning the exact version of every package it installed.
+
+The `~=6.1` specifier accepts the newest 6.1.x release, and future 6.1 patch releases, but not Django 6.2 or later.
 Pinning the version like this is what stops an unrelated upgrade from breaking your project halfway through the tutorial.
+
+**pyproject.toml** now reads:
+
+```toml
+[project]
+name = "django-local-library"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "django~=6.1",
+]
+```
 
 You can test that Django is installed by running the following command, which just checks that Python can find the Django module:
 
@@ -454,20 +469,33 @@ python -m django --version
 
 It should report a version starting with `6.1`.
 
-Finally, record the dependency so that the environment can be recreated from the repository:
+Commit **pyproject.toml** and **uv.lock** to git along with the rest of your source.
+Between them they let anyone — a classmate, or your production server — recreate your environment exactly, with a single command:
 
 ```bash
-pip freeze > requirements.txt
+uv sync
 ```
 
-We will add more packages to this file in the [deployment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Deployment) article, regenerating it the same way each time.
-Commit **requirements.txt** to git along with the rest of your source.
+We will add more dependencies with `uv add` in the [deployment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Deployment) article. Each one updates both files, and you commit them again.
+
+> [!NOTE]
+> The two files do different jobs.
+> **pyproject.toml** says what your project _wants_ ("some Django 6.1"), and you can edit it.
+> **uv.lock** says what it actually _got_, down to the exact version and file hash of every package, and uv maintains it for you — never edit it by hand.
 
 ## Other Python tools
 
 Experienced Python developers may install additional tools, such as linters (which help detect common errors in code).
 
 Note that you should use a Django-aware linter such as [pylint-django](https://pypi.org/project/pylint-django/), because some common Python linters (such as `pylint`) incorrectly report errors in the standard files generated for Django.
+
+Development-only tools like these belong in a separate dependency group, so that they are installed on your computer but not on your production server:
+
+```bash
+uv add --dev pylint-django
+```
+
+You can also run a tool once, without adding it to the project at all, using `uv tool run` (abbreviated to `uvx`) — for example `uvx ruff check .`.
 
 ## Testing your installation
 
@@ -514,7 +542,8 @@ In the testing section you also briefly saw how we can create a new Django websi
 - [Quick Install Guide](https://docs.djangoproject.com/en/6.1/intro/install/) (Django docs)
 - [How to install Django — Complete guide](https://docs.djangoproject.com/en/6.1/topics/install/) (Django docs) — also covers how to remove Django
 - [How to install Django on Windows](https://docs.djangoproject.com/en/6.1/howto/windows/) (Django docs)
-- [venv — Creation of virtual environments](https://docs.python.org/3/library/venv.html) (Python docs)
-- [Installing packages using pip and virtual environments](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/) (Python Packaging User Guide)
+- [uv documentation](https://docs.astral.sh/uv/) (Astral) — in particular [Working on projects](https://docs.astral.sh/uv/guides/projects/)
+- [Writing your pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) (Python Packaging User Guide)
+- [venv — Creation of virtual environments](https://docs.python.org/3/library/venv.html) (Python docs) — the standard library tool uv replaces here
 
 {{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Introduction", "Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website", "Learn_web_development/Extensions/Server-side/Django")}}

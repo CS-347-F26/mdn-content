@@ -103,7 +103,7 @@ python manage.py startapp catalog
 ```
 
 > [!NOTE]
-> Because the commands are all run inside the activated virtual environment, `python` and `pip` work identically on Linux, macOS, and Windows.
+> Because the commands are all run inside the activated virtual environment, `python` works identically on Linux, macOS, and Windows.
 > If `python` isn't found, you have probably forgotten to activate the environment for this terminal session.
 
 The tool creates a new folder and populates it with files for the different parts of the application (shown in the following example).

@@ -115,10 +115,11 @@ This is very flexible as it allows any configuration supported by the hosting se
 For reading environment values from a file we'll use [python-dotenv](https://pypi.org/project/python-dotenv/).
 This is a library for reading key-value pairs out of a file and using them as environment variables, but only if the corresponding environment variable is not defined.
 
-Install the library into your virtual environment as shown (and also update your `requirements.txt` file):
+Add the library to your project as shown.
+`uv add` installs it into **.venv** and records it in **pyproject.toml** and **uv.lock**, so there is no separate step to update your dependency list:
 
 ```bash
-pip install python-dotenv
+uv add python-dotenv
 ```
 
 Then open **/locallibrary/settings.py** and insert the following code after `BASE_DIR` is defined, but before the security warning: `# SECURITY WARNING: keep the secret key used in production secret!`
@@ -177,13 +178,13 @@ python manage.py check --deploy
 
 [Gunicorn](https://gunicorn.org/) is a pure-Python HTTP server that is commonly used for serving Django WSGI applications.
 
-While we don't need _Gunicorn_ to serve our LocalLibrary application during development, we'll install it locally so that it becomes part of our [requirements](#requirements) when the application is deployed.
+While we don't need _Gunicorn_ to serve our LocalLibrary application during development, we'll add it locally so that it becomes part of our [dependencies](#dependencies) when the application is deployed.
 
 First make sure that you're in the **.venv** virtual environment that was created in your project folder when you [set up the development environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#using_a_virtual_environment) (activate it from the project root with `source .venv/bin/activate` on Linux/macOS, or `.venv\Scripts\activate.bat` on Windows).
 Then install _Gunicorn_ locally on the command line using _pip_:
 
 ```bash
-pip install gunicorn
+uv add gunicorn
 ```
 
 ### Database configuration
@@ -203,10 +204,10 @@ In addition to installing the _dj-database-url_ package we'll also need to insta
 
 _dj-database-url_ is used to extract the Django database configuration from an environment variable.
 
-Install it locally so that it becomes part of our [requirements](#requirements) to set up on the deployment server:
+Add it locally so that it becomes part of our [dependencies](#dependencies) to set up on the deployment server:
 
 ```bash
-pip install dj-database-url
+uv add dj-database-url
 ```
 
 #### settings.py
@@ -230,14 +231,14 @@ The value `conn_max_age=500` makes the connection persistent, which is far more 
 #### psycopg2
 
 Django needs a Postgres adapter to work with Postgres databases, and _psycopg2_ is the one used in this tutorial.
-Install it locally so that it becomes part of our [requirements](#requirements) for Railway to set up on the remote server:
+Add it locally so that it becomes part of our [dependencies](#dependencies) for Railway to set up on the remote server:
 
 ```bash
-pip install psycopg2-binary
+uv add psycopg2-binary
 ```
 
 > [!NOTE]
-> Django 6.1 also supports the newer [psycopg](https://pypi.org/project/psycopg/) (version 3) adapter, which you install with `pip install "psycopg[binary]"` instead.
+> Django 6.1 also supports the newer [psycopg](https://pypi.org/project/psycopg/) (version 3) adapter, which you add with `uv add "psycopg[binary]"` instead.
 > It needs no other changes to the configuration below, and it is the adapter the Psycopg project recommends for new code.
 > We stay with _psycopg2-binary_ here because it is the combination most widely tested against the hosting services used in this article.
 
@@ -305,7 +306,7 @@ The steps to set up _WhiteNoise_ to use with the project are [given here](https:
 Install whitenoise locally using the following command:
 
 ```bash
-pip install whitenoise
+uv add whitenoise
 ```
 
 #### settings.py
@@ -341,31 +342,47 @@ STORAGES = {
 
 You don't need to do anything else to configure _WhiteNoise_ because it uses your project settings for `STATIC_ROOT` and `STATIC_URL` by default.
 
-### Requirements
+### Dependencies
 
-The Python requirements of your web application should be stored in a file **requirements.txt** in the root of your repository.
-Many hosting services will automatically install dependencies in this file (in others you have to do this yourself).
-You can create this file using _pip_ on the command line (run the following in the repo root):
+The Python requirements of your web application live in **pyproject.toml** and **uv.lock** in the root of your repository, and `uv add` has been keeping both up to date as you worked through the sections above.
+There is no separate list to maintain.
+
+After adding all of the dependencies above, the `dependencies` list in **pyproject.toml** should look like this (your version numbers may be newer):
+
+```toml
+dependencies = [
+    "dj-database-url>=3.1.2",
+    "django~=6.1",
+    "gunicorn>=26.2.0",
+    "psycopg2-binary>=2.9.12",
+    "python-dotenv>=1.2.3",
+    "whitenoise>=6.12.0",
+]
+```
+
+Commit both files. Anywhere the environment has to be recreated — a classmate's computer, or the production server — one command reads them and installs exactly the versions you tested against:
 
 ```bash
-pip freeze > requirements.txt
+uv sync --locked
 ```
 
-After installing all the different dependencies above, your **requirements.txt** file should have _at least_ these items listed (though the version numbers may be different).
-Please delete any other dependencies not listed below, unless you've explicitly added them for this application.
-
-```plain
-Django==6.1
-dj-database-url==3.1.2
-gunicorn==26.1.0
-psycopg2-binary==2.9.12
-whitenoise==6.12.0
-python-dotenv==1.2.3
-```
+`--locked` makes the command fail rather than quietly re-resolving your dependencies if **uv.lock** has fallen out of step with **pyproject.toml**. That is what you want on a server: a deployment should install what you tested, or stop.
 
 > [!NOTE]
-> `pip freeze` also records the packages that Django itself depends on, such as `asgiref` and `sqlparse`.
-> Leave those in the file — they are pinned so that the hosting service installs exactly what you tested against.
+> **uv.lock** also pins the packages Django itself depends on, such as `asgiref` and `sqlparse`, along with a hash for each file.
+> That is what makes the install reproducible, and it is why the lock file is committed even though you never edit it.
+
+#### Hosting services that expect requirements.txt
+
+Some hosting services install dependencies from a **requirements.txt** file and know nothing about uv.
+Do not write that file by hand — generate it from the lock file, so that it cannot disagree with what you tested:
+
+```bash
+uv export --format requirements.txt --no-hashes --no-dev -o requirements.txt
+```
+
+Commit the generated file, and regenerate it whenever your dependencies change.
+The Railway deployment below uses it.
 
 ### Update your application repository in GitHub
 
@@ -477,22 +494,23 @@ We'll also configure the default database and collect static files so that they 
    cd <your_pythonanywhere_username>.pythonanywhere.com
    ```
 
-4. Create the virtual environment inside the project folder, exactly as you did on your own computer, and activate it:
+4. Install uv on the hosting computer, the same way you installed it locally:
 
    ```bash
-   python -m venv .venv
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   source $HOME/.local/bin/env
+   ```
+
+5. Recreate the environment from the lock file, and activate it:
+
+   ```bash
+   uv sync --locked
    source .venv/bin/activate
    ```
 
-   This is the same process as covered in [Setting up a Django development environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#creating_a_virtual_environment).
-   Keeping the environment in a **.venv** folder at the root of the deployed project means the path you give PythonAnywhere in the next section is predictable.
+   `uv sync` creates **.venv** inside the project folder and installs exactly the versions recorded in **uv.lock**, so the server runs the same packages you developed against.
+   Keeping the environment in a **.venv** folder at the root of the deployed project also means the path you give PythonAnywhere in the next section is predictable.
    You can leave the environment with `deactivate` and re-enter it by running the `source` command again from the project folder.
-
-5. Install the library dependencies using the `requirements.txt` file:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
 
 6. Create and configure an SQLite database on the hosting computer (just as we did during development).
 
@@ -711,7 +729,7 @@ In order to execute your application, Railway needs to be able to set up the app
 For Django apps we provide this information in a number of text files:
 
 - **runtime.txt**: states the programming language and version to use.
-- **requirements.txt**: lists the Python dependencies needed for your site, including Django.
+- **requirements.txt**: lists the Python dependencies needed for your site, including Django. You generate this from **uv.lock** with `uv export`, as described in [Dependencies](#dependencies) above — Railway's builder reads it, but does not know about uv.
 - **Procfile**: A list of processes to be executed to start the web application.
   For Django this will usually be the Gunicorn web application server (with a `.wsgi` script).
 - **wsgi.py**: [WSGI](https://wsgi.readthedocs.io/en/latest/what.html) configuration to call our Django application in the Railway environment.
@@ -732,7 +750,7 @@ That's all the overview you need in order to get started.
 ### Update the app for Railway
 
 This section explains the changes you'll need to make to our _LocalLibrary_ application to get it to work on Railway.
-We really only have to create a `Procfile` and `runtime.txt` file, because almost everything else is already present.
+We really only have to create a `Procfile` and `runtime.txt` file, and export a **requirements.txt**, because almost everything else is already present.
 
 Note that these changes will not prevent you using the local testing and workflows we've already learned.
 
@@ -768,6 +786,8 @@ python-3.14.7
 > [!NOTE]
 > Hosting providers do not necessarily support every Python runtime minor version.
 > They will generally use the closest supported version to the value that you specify.
+>
+> This file is for the hosting service. Locally it is the `requires-python` value in **pyproject.toml** that decides which interpreter uv picks, so keep the two consistent.
 
 #### Re-test and save changes to GitHub
 

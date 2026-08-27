@@ -938,7 +938,7 @@ Django's test framework can help you write effective unit and integration tests 
 
 While there are numerous other test tools that you can use, we'll just highlight two:
 
-- [Coverage](https://coverage.readthedocs.io/en/latest/): This Python tool reports on how much of your code is actually executed by your tests. It is particularly useful when you're getting started, and you are trying to work out exactly what you should test.
+- [Coverage](https://coverage.readthedocs.io/en/latest/): This Python tool reports on how much of your code is actually executed by your tests. It is particularly useful when you're getting started, and you are trying to work out exactly what you should test. Add it as a development-only dependency with `uv add --dev coverage`, so that it is installed on your computer but not on your production server.
 - [Selenium](/en-US/docs/Learn_web_development/Extensions/Testing/Your_own_automation_environment) is a framework to automate testing in a real browser. It allows you to simulate a real user interacting with the site, and provides a great framework for system testing your site (the next step up from integration testing).
 
 ## Challenge yourself
