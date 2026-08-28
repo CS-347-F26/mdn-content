@@ -44,10 +44,10 @@ To get started:
 4. Hook up the **url/path** mapper for each application.
 
 For the [Local Library website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website), the project package is named _locallibrary_, and includes one application named _catalog_.
-We create both directly inside the **django_local_library** repository, so the top-level folder structure will be as follows:
+We create both directly inside the **locallibrary** repository, so the top-level folder structure will be as follows:
 
 ```bash
-django_local_library/  # Your git repository, and the project root
+locallibrary/  # Your git repository, and the project root
     manage.py          # Script to run Django tools for this project (created by startproject)
     locallibrary/      # Website/project folder (created by startproject)
     catalog/           # Application folder (created using manage.py)
@@ -60,7 +60,7 @@ At the end of this article, we discuss other site-wide configuration you might a
 
 To create the project:
 
-1. Open a command shell (or a terminal window) and navigate to the **django_local_library** repository that you [cloned when setting up the development environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#clone_the_repo_to_your_local_computer).
+1. Open a command shell (or a terminal window) and navigate to the **locallibrary** repository that you [cloned when setting up the development environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#clone_the_repo_to_your_local_computer).
 2. [Activate the **.venv** virtual environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#using_a_virtual_environment) you created there (`source .venv/bin/activate` on Linux/macOS).
 3. Create the new project _in place_ using the `startproject` command, noting the trailing `.` at the end of the command:
 
@@ -74,7 +74,7 @@ To create the project:
    The command adds the following files, alongside the **README.md**, **.gitignore**, and **.venv** that are already in the folder:
 
    ```bash
-   django_local_library/
+   locallibrary/
        manage.py
        locallibrary/
            __init__.py
@@ -112,7 +112,7 @@ Most of the files are named after their purpose (e.g., views should be stored in
 The updated project directory should now look like this:
 
 ```bash
-django_local_library/
+locallibrary/
     manage.py
     locallibrary/
     catalog/
@@ -137,7 +137,7 @@ In addition we now have:
 
 Now that the application has been created, we have to register it with the project so that it will be included when any tools are run (like adding models to the database for example). Applications are registered by adding them to the `INSTALLED_APPS` list in the project settings.
 
-Open the project settings file, **django_local_library/locallibrary/settings.py**, and find the definition for the `INSTALLED_APPS` list. Then add a new line at the end of the list, as shown below:
+Open the project settings file, **locallibrary/locallibrary/settings.py**, and find the definition for the `INSTALLED_APPS` list. Then add a new line at the end of the list, as shown below:
 
 ```bash
 INSTALLED_APPS = [
@@ -152,7 +152,7 @@ INSTALLED_APPS = [
 ]
 ```
 
-The new line specifies the application configuration object (`CatalogConfig`) that was generated for you in **/django_local_library/catalog/apps.py** when you created the application.
+The new line specifies the application configuration object (`CatalogConfig`) that was generated for you in **/locallibrary/catalog/apps.py** when you created the application.
 
 > [!NOTE]
 > You'll notice that there are already a lot of other `INSTALLED_APPS` (and `MIDDLEWARE`, further down in the settings file). These enable support for the [Django administration site](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Admin_site) and the functionality it uses (including sessions, authentication, etc.).
@@ -191,7 +191,7 @@ There are two other settings you won't change now, but that you should be aware 
 
 The website is created with a URL mapper file (**urls.py**) in the project folder. While you can use this file to manage all your URL mappings, it is more usual to defer mappings to the associated application.
 
-Open **django_local_library/locallibrary/urls.py** and note the instructional text which explains some of the ways to use the URL mapper.
+Open **locallibrary/locallibrary/urls.py** and note the instructional text which explains some of the ways to use the URL mapper.
 
 ```python
 """
@@ -302,7 +302,7 @@ Before we do that, we should first run a _database migration_. This updates our 
 
 ### Running database migrations
 
-Django uses an Object-Relational-Mapper (ORM) to map model definitions in the Django code to the data structure used by the underlying database. As we change our model definitions, Django tracks the changes and can create database migration scripts (in **/django_local_library/catalog/migrations/**) to automatically migrate the underlying data structure in the database to match the model.
+Django uses an Object-Relational-Mapper (ORM) to map model definitions in the Django code to the data structure used by the underlying database. As we change our model definitions, Django tracks the changes and can create database migration scripts (in **/locallibrary/catalog/migrations/**) to automatically migrate the underlying data structure in the database to match the model.
 
 When we created the website, Django automatically added a number of models for use by the admin section of the site (which we'll look at later). Run the following commands to define tables for those models in the database (make sure you are in the directory that contains **manage.py**):
 
@@ -351,7 +351,7 @@ At this point, we know that Django is working!
 
 We've just done some significant work, so now is a good time to backup the project using GitHub.
 
-Because we created the project directly inside the **django_local_library** repository, there is nothing to move — the new files are already in the right place.
+Because we created the project directly inside the **locallibrary** repository, there is nothing to move — the new files are already in the right place.
 Add and commit the changes and push them to GitHub.
 From the root of the repository, you can use a similar set of commands to those in the [Modify and sync changes](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#modify_and_sync_changes) section of the _Development environment_ topic:
 

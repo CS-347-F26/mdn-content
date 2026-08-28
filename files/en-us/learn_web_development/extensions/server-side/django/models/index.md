@@ -284,7 +284,7 @@ There is a lot more you can do with queries, including backwards searches from r
 
 ## Defining the LocalLibrary Models
 
-In this section we will start defining the models for the library. Open `models.py` (in /django_local_library/catalog/). The boilerplate at the top of the page imports the _models_ module, which contains the model base class `models.Model` that our models will inherit from.
+In this section we will start defining the models for the library. Open `models.py` (in /locallibrary/catalog/). The boilerplate at the top of the page imports the _models_ module, which contains the model base class `models.Model` that our models will inherit from.
 
 ```python
 from django.db import models
