@@ -72,9 +72,9 @@ The first page we'll create is the index page (`catalog/`). The index page will 
 
 ### URL mapping
 
-When we created the [skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website), we updated the **locallibrary/urls.py** file to ensure that whenever a URL that starts with `catalog/` is received, the _URLConf_ module `catalog.urls` will process the remaining substring.
+When we created the [skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website), we updated the **locallibrary_config/urls.py** file to ensure that whenever a URL that starts with `catalog/` is received, the _URLConf_ module `catalog.urls` will process the remaining substring.
 
-The following code snippet from **locallibrary/urls.py** includes the `catalog.urls` module:
+The following code snippet from **locallibrary_config/urls.py** includes the `catalog.urls` module:
 
 ```python
 urlpatterns += [
@@ -347,7 +347,7 @@ You can add an image into the page in a similar way, for example:
 ```
 
 > [!NOTE]
-> The samples above specify where the files are located, but Django does not serve them by default. We configured the development web server to serve files by modifying the global URL mapper (**/locallibrary/locallibrary/urls.py**) when we [created the website skeleton](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website), but still need to enable file serving in production. We'll look at this later.
+> The samples above specify where the files are located, but Django does not serve them by default. We configured the development web server to serve files by modifying the global URL mapper (**/locallibrary/locallibrary_config/urls.py**) when we [created the website skeleton](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website), but still need to enable file serving in production. We'll look at this later.
 
 For more information on working with static files see [Managing static files](https://docs.djangoproject.com/en/6.1/howto/static-files/) in the Django documentation.
 

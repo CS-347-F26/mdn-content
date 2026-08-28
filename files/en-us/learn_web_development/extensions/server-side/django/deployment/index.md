@@ -122,7 +122,7 @@ Add the library to your project as shown.
 uv add python-dotenv
 ```
 
-Then open **/locallibrary/settings.py** and insert the following code after `BASE_DIR` is defined, but before the security warning: `# SECURITY WARNING: keep the secret key used in production secret!`
+Then open **/locallibrary_config/settings.py** and insert the following code after `BASE_DIR` is defined, but before the security warning: `# SECURITY WARNING: keep the secret key used in production secret!`
 
 ```python
 # Support env variables from .env file if defined
@@ -212,7 +212,7 @@ uv add dj-database-url
 
 #### settings.py
 
-Open **/locallibrary/settings.py** and copy the following configuration into the bottom of the file:
+Open **/locallibrary_config/settings.py** and copy the following configuration into the bottom of the file:
 
 ```python
 # Update database configuration from $DATABASE_URL environment variable (if defined)
@@ -275,7 +275,7 @@ For this tutorial, _collectstatic_ can be run before the application is uploaded
 
 #### settings.py
 
-Open **/locallibrary/settings.py** and copy the following configuration into the bottom of the file.
+Open **/locallibrary_config/settings.py** and copy the following configuration into the bottom of the file.
 The `BASE_DIR` should already have been defined in your file (the `STATIC_URL` may already have been defined within the file when it was created.
 While it will cause no harm, you might as well delete the duplicate previous reference).
 
@@ -311,7 +311,7 @@ uv add whitenoise
 
 #### settings.py
 
-To install _WhiteNoise_ into your Django application, open **/locallibrary/settings.py**, find the `MIDDLEWARE` setting and add the `WhiteNoiseMiddleware` near the top of the list, just below the `SecurityMiddleware`:
+To install _WhiteNoise_ into your Django application, open **/locallibrary_config/settings.py**, find the `MIDDLEWARE` setting and add the `WhiteNoiseMiddleware` near the top of the list, just below the `SecurityMiddleware`:
 
 ```python
 MIDDLEWARE = [
@@ -327,7 +327,7 @@ MIDDLEWARE = [
 ```
 
 Optionally, you can reduce the size of the static files when they are served (this is more efficient).
-Just add the following to the bottom of **/locallibrary/settings.py**:
+Just add the following to the bottom of **/locallibrary_config/settings.py**:
 
 ```python
 # Static file serving.
@@ -589,7 +589,7 @@ After getting the local library sources and installing the dependencies in a vir
    if path not in sys.path:
        sys.path.append(path)
 
-   os.environ['DJANGO_SETTINGS_MODULE'] = 'locallibrary.settings'
+   os.environ['DJANGO_SETTINGS_MODULE'] = 'locallibrary_config.settings'
 
    from django.core.wsgi import get_wsgi_application
    application = get_wsgi_application()
@@ -627,7 +627,7 @@ This is a Django security error that is raised because our source code is not ru
 > This kind of debug information is very useful when you're getting set up, but is a security risk in a deployed site.
 > In the next section we'll show you how to disable this level of logging on the live site using [environment variables](#using_environment_variables_on_pythonanywhere).
 
-Open **/locallibrary/settings.py** in your GitHub project and change the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/6.1/ref/settings/#allowed-hosts) setting to include your PythonAnywhere site URL:
+Open **/locallibrary_config/settings.py** in your GitHub project and change the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/6.1/ref/settings/#allowed-hosts) setting to include your PythonAnywhere site URL:
 
 ```python
 ## For example, for a site URL at 'hamishwillee.pythonanywhere.com'
@@ -640,7 +640,7 @@ ALLOWED_HOSTS = ['hamishwillee.pythonanywhere.com', '127.0.0.1']
 ```
 
 Since the applications uses CSRF protection, you will also need to set the [CSRF_TRUSTED_ORIGINS](https://docs.djangoproject.com/en/6.1/ref/settings/#csrf-trusted-origins) key.
-Open **/locallibrary/settings.py** and add a line like the one below:
+Open **/locallibrary_config/settings.py** and add a line like the one below:
 
 ```python
 ## For example, for a site URL is at 'web-production-3640.up.railway.app'
@@ -762,13 +762,13 @@ It lists the commands that will be executed by Railway to start your site.
 Create the file `Procfile` (with no file extension) in the root of your GitHub repo and copy/paste in the following text:
 
 ```plain
-web: python manage.py migrate && python manage.py collectstatic --no-input && gunicorn locallibrary.wsgi
+web: python manage.py migrate && python manage.py collectstatic --no-input && gunicorn locallibrary_config.wsgi
 ```
 
 The `web:` prefix tells Railway that this is a web process and can be sent HTTP traffic.
 We then call the command Django migration command `uv run python manage.py migrate` to set up the database tables.
 Next, we call the Django command `uv run python manage.py collectstatic` to collect static files into the folder defined by the `STATIC_ROOT` project setting (see the section [serving static files in production](#serving_static_files_in_production) below).
-Finally, we start the _gunicorn_ process, a popular web application server, passing it configuration information in the module `locallibrary.wsgi` (created with our application skeleton: **/locallibrary/wsgi.py**).
+Finally, we start the _gunicorn_ process, a popular web application server, passing it configuration information in the module `locallibrary_config.wsgi` (created with our application skeleton: **/locallibrary_config/wsgi.py**).
 
 You will note that we already set up the project to include _gunicorn_ and support serving static files!
 
@@ -860,7 +860,7 @@ This is a Django security error that is raised because our source code is not ru
 > This kind of debug information is very useful when you're getting set up, but is a security risk in a deployed site.
 > We'll show you how to disable it once the site is up and running.
 
-Open **/locallibrary/settings.py** in your GitHub project and change the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/6.1/ref/settings/#allowed-hosts) setting to include your Railway site URL:
+Open **/locallibrary_config/settings.py** in your GitHub project and change the [ALLOWED_HOSTS](https://docs.djangoproject.com/en/6.1/ref/settings/#allowed-hosts) setting to include your Railway site URL:
 
 ```python
 ## For example, for a site URL at 'web-production-3640.up.railway.app'
@@ -873,7 +873,7 @@ ALLOWED_HOSTS = ['web-production-3640.up.railway.app', '127.0.0.1']
 ```
 
 Since the applications uses CSRF protection, you will also need to set the [CSRF_TRUSTED_ORIGINS](https://docs.djangoproject.com/en/6.1/ref/settings/#csrf-trusted-origins) key.
-Open **/locallibrary/settings.py** and add a line like the one below:
+Open **/locallibrary_config/settings.py** and add a line like the one below:
 
 ```python
 ## For example, for a site URL is at 'web-production-3640.up.railway.app'

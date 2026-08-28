@@ -47,7 +47,7 @@ The authentication was enabled automatically when we [created the skeleton websi
 > [!NOTE]
 > The necessary configuration was all done for us when we created the app using the `uv run python -m django startproject` command. The database tables for users and model permissions were created when we first called `uv run python manage.py migrate`.
 
-The configuration is set up in the `INSTALLED_APPS` and `MIDDLEWARE` sections of the project file (**locallibrary/locallibrary/settings.py**), as shown below:
+The configuration is set up in the `INSTALLED_APPS` and `MIDDLEWARE` sections of the project file (**locallibrary/locallibrary_config/settings.py**), as shown below:
 
 ```python
 INSTALLED_APPS = [
@@ -156,7 +156,7 @@ In this section, we show how to integrate the default system into the _LocalLibr
 
 ### Project URLs
 
-Add the following to the bottom of the project urls.py file (**locallibrary/locallibrary/urls.py**) file:
+Add the following to the bottom of the project urls.py file (**locallibrary/locallibrary_config/urls.py**) file:
 
 ```python
 # Add Django site authentication urls (for login, logout, password management)
@@ -206,13 +206,13 @@ For this site, we'll put our HTML pages in the **templates/registration/** direc
 > ```plain
 > locallibrary/   # Django top level project folder
 >   catalog/
->   locallibrary/
+>   locallibrary_config/
 >   templates/
 >     registration/
 > ```
 
 To make the **templates** directory visible to the template loader we need to add it in the template search path.
-Open the project settings (**/locallibrary/locallibrary/settings.py**).
+Open the project settings (**/locallibrary/locallibrary_config/settings.py**).
 
 Then import the `os` module (add the following line near the top of the file if it isn't already present).
 
@@ -287,7 +287,7 @@ Navigate back to the login page (`http://127.0.0.1:8000/accounts/login/`) once y
 
 If you log in using valid credentials, you'll be redirected to another page (by default this will be `http://127.0.0.1:8000/accounts/profile/`). The problem is that, by default, Django expects that upon logging in you will want to be taken to a profile page, which may or may not be the case. As you haven't defined this page yet, you'll get another error!
 
-Open the project settings (**/locallibrary/locallibrary/settings.py**) and add the text below to the bottom. Now when you log in you should be redirected to the site homepage by default.
+Open the project settings (**/locallibrary/locallibrary_config/settings.py**) and add the text below to the bottom. Now when you log in you should be redirected to the site homepage by default.
 
 ```python
 # Redirect to home URL after login (Default redirects to /accounts/profile/)

@@ -43,13 +43,13 @@ To get started:
 3. Register the new applications to include them in the project.
 4. Hook up the **url/path** mapper for each application.
 
-For the [Local Library website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website), the project package is named _locallibrary_, and includes one application named _catalog_.
+For the [Local Library website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website), the project package is named _locallibrary\_config_, and includes one application named _catalog_.
 We create both directly inside the **locallibrary** repository, so the top-level folder structure will be as follows:
 
 ```bash
 locallibrary/  # Your git repository, and the project root
     manage.py          # Script to run Django tools for this project (created by startproject)
-    locallibrary/      # Website/project folder (created by startproject)
+    locallibrary_config/      # Website/project folder (created by startproject)
     catalog/           # Application folder (created using manage.py)
 ```
 
@@ -65,7 +65,7 @@ To create the project:
 3. Create the new project _in place_ using the `startproject` command, noting the trailing `.` at the end of the command:
 
    ```bash
-   python -m django startproject locallibrary .
+   uv run python -m django startproject locallibrary_config .
    ```
 
    The trailing `.` means "create the project here", so **manage.py** is written into the current folder instead of into a new sub-folder.
@@ -76,7 +76,7 @@ To create the project:
    ```bash
    locallibrary/
        manage.py
-       locallibrary/
+       locallibrary_config/
            __init__.py
            settings.py
            urls.py
@@ -84,7 +84,7 @@ To create the project:
            asgi.py
    ```
 
-The _locallibrary_ project sub-folder is the entry point for the website:
+The _locallibrary\_config_ project sub-folder is the entry point for the website:
 
 - **\_\_init\_\_.py** is an empty file that instructs Python to treat this directory as a Python package.
 - **settings.py** contains all the website settings, including registering any applications we create, the location of our static files, database configuration details, etc.
@@ -114,7 +114,7 @@ The updated project directory should now look like this:
 ```bash
 locallibrary/
     manage.py
-    locallibrary/
+    locallibrary_config/
     catalog/
         admin.py
         apps.py
@@ -137,7 +137,7 @@ In addition we now have:
 
 Now that the application has been created, we have to register it with the project so that it will be included when any tools are run (like adding models to the database for example). Applications are registered by adding them to the `INSTALLED_APPS` list in the project settings.
 
-Open the project settings file, **locallibrary/locallibrary/settings.py**, and find the definition for the `INSTALLED_APPS` list. Then add a new line at the end of the list, as shown below:
+Open the project settings file, **locallibrary/locallibrary_config/settings.py**, and find the definition for the `INSTALLED_APPS` list. Then add a new line at the end of the list, as shown below:
 
 ```bash
 INSTALLED_APPS = [
@@ -191,7 +191,7 @@ There are two other settings you won't change now, but that you should be aware 
 
 The website is created with a URL mapper file (**urls.py**) in the project folder. While you can use this file to manage all your URL mappings, it is more usual to defer mappings to the associated application.
 
-Open **locallibrary/locallibrary/urls.py** and note the instructional text which explains some of the ways to use the URL mapper.
+Open **locallibrary/locallibrary_config/urls.py** and note the instructional text which explains some of the ways to use the URL mapper.
 
 ```python
 """

@@ -47,7 +47,7 @@ Django uses a cookie containing a special _session id_ to identify each browser 
 
 Sessions were enabled automatically when we [created the skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website) (in tutorial 2).
 
-The configuration is set up in the `INSTALLED_APPS` and `MIDDLEWARE` sections of the project file (**locallibrary/locallibrary/settings.py**), as shown below:
+The configuration is set up in the `INSTALLED_APPS` and `MIDDLEWARE` sections of the project file (**locallibrary/locallibrary_config/settings.py**), as shown below:
 
 ```python
 INSTALLED_APPS = [
@@ -109,7 +109,7 @@ request.session.modified = True
 ```
 
 > [!NOTE]
-> You can change the behavior so the site will update the database/send cookie on every request by adding `SESSION_SAVE_EVERY_REQUEST = True` into your project settings (**locallibrary/locallibrary/settings.py**).
+> You can change the behavior so the site will update the database/send cookie on every request by adding `SESSION_SAVE_EVERY_REQUEST = True` into your project settings (**locallibrary/locallibrary_config/settings.py**).
 
 ## Simple example — getting visit counts
 
