@@ -171,7 +171,7 @@ export DJANGO_DEBUG=False
 A full checklist of settings you might want to change is provided in [Deployment checklist](https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/) (Django docs). You can also list a number of these using the terminal command below:
 
 ```sh
-python manage.py check --deploy
+uv run python manage.py check --deploy
 ```
 
 ### Gunicorn
@@ -267,7 +267,7 @@ The _collectstatic_ tool is used to collect static files into the folder defined
 It is called with the following command:
 
 ```bash
-python manage.py collectstatic
+uv run python manage.py collectstatic
 ```
 
 For this tutorial, _collectstatic_ can be run before the application is uploaded, copying all the static files in the application to the location specified in `STATIC_ROOT`.
@@ -795,7 +795,7 @@ Before you proceed, first test the site again locally and make sure it wasn't br
 Run the development web server as usual and then check the site still works as you expect on your browser.
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 Next, let's `push` the changes to GitHub.
@@ -990,7 +990,7 @@ There are many ways to generate a cryptographically secret key.
 A simple way is to run the following Python command on your development computer:
 
 ```bash
-python -c "import secrets; print(secrets.token_urlsafe())"
+uv run python -c "import secrets; print(secrets.token_urlsafe())"
 ```
 
 Select the **New Variable** button and enter the key `DJANGO_SECRET_KEY` with your secret value (then select **Add**).

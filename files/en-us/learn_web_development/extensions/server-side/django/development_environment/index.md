@@ -385,7 +385,7 @@ uv downloads a suitable interpreter if it cannot find one already — the newest
 
 ### Using a virtual environment
 
-The environment has to be _activated_ before it does anything. `uv` automatically uses the venv it creates when you run `uv` commands, but if you need to activate it in your shell for other reasons, here's how you do it.
+The environment has to be _activated_ before it does anything. **`uv` automatically uses the venv it creates when you run `uv` commands**, but if you need to activate it in your shell for other reasons, here's how you do it.
 Activation is the one command in this module whose form differs between operating systems — run it from the project root:
 
 ```bash
@@ -460,7 +460,7 @@ dependencies = [
 You can test that Django is installed by running the following command, which just checks that Python can find the Django module:
 
 ```bash
-python -m django --version
+uv run python -m django --version
 ```
 
 It should report a version starting with `6.1`.
@@ -501,14 +501,14 @@ With the virtual environment activated, create a new skeleton site called "_myte
 After creating the site you can navigate into the folder, where you will find the main script for managing projects, called **manage.py**.
 
 ```bash
-python -m django startproject mytestsite
+uv run python -m django startproject mytestsite
 cd mytestsite
 ```
 
 We can run the _development web server_ from within this folder using **manage.py** and the `runserver` command, as shown.
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 > [!NOTE]
@@ -531,7 +531,7 @@ rm -r mytestsite
 
 You now have a Django development environment up and running on your computer.
 
-In the testing section you also briefly saw how we can create a new Django website using `python -m django startproject`, and run it in your browser using the development web server (`python manage.py runserver`). In the next article, we expand on this process, building a simple but complete web application.
+In the testing section you also briefly saw how we can create a new Django website using `uv run python -m django startproject`, and run it in your browser using the development web server (`uv run python manage.py runserver`). In the next article, we expand on this process, building a simple but complete web application.
 
 ## See also
 

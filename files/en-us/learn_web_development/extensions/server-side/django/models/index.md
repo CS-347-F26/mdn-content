@@ -477,8 +477,8 @@ All of the fields/methods should now be familiar. The model defines an author as
 All your models have now been created. Now re-run your database migrations to add them to your database.
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+uv run python manage.py makemigrations
+uv run python manage.py migrate
 ```
 
 ## Language model — challenge
@@ -495,8 +495,8 @@ After you've decided, add the field. You can see what we decided [for our projec
 Don't forget that after a change to your model, you should again re-run your database migrations to add the changes.
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+uv run python manage.py makemigrations
+uv run python manage.py migrate
 ```
 
 ## Summary

@@ -71,13 +71,13 @@ In order to log into the admin site, we need a user account with _Staff_ status 
 Call the following command, in the same directory as **manage.py**, to create the superuser. You will be prompted to enter a username, email address, and _strong_ password.
 
 ```bash
-python manage.py createsuperuser
+uv run python manage.py createsuperuser
 ```
 
 Once this command completes a new superuser will have been added to the database. Now restart the development server so we can test the login:
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 ## Logging in and using the site

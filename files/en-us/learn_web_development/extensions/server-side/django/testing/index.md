@@ -187,7 +187,7 @@ The `AssertTrue`, `AssertFalse`, `AssertEqual` are standard assertions provided 
 The easiest way to run all the tests is to use the command:
 
 ```bash
-python manage.py test
+uv run python manage.py test
 ```
 
 This will discover all files named with the pattern **test\*.py** under the current directory and run all tests defined using appropriate base classes (here we have a number of test files, but only **/catalog/tests/test_models.py** currently contains any tests.) By default the tests will individually report only on test failures, followed by a test summary.
@@ -196,13 +196,13 @@ This will discover all files named with the pattern **test\*.py** under the curr
 > If you get errors similar to: `ValueError: Missing staticfiles manifest entry...` this may be because testing does not run _collectstatic_ by default, and your app is using a storage class that requires it (see [manifest_strict](https://docs.djangoproject.com/en/6.1/ref/contrib/staticfiles/#django.contrib.staticfiles.storage.ManifestStaticFilesStorage.manifest_strict) for more information). There are a number of ways you can overcome this problem - the easiest is to run _collectstatic_ before running the tests:
 >
 > ```bash
-> python manage.py collectstatic
+> uv run python manage.py collectstatic
 > ```
 
 Run the tests in the root directory of _LocalLibrary_. You should see an output like the one below.
 
 ```bash
-> python manage.py test
+> uv run python manage.py test
 
 Creating test database for alias 'default'...
 setUpTestData: Run once to set up non-modified data for all class methods.
@@ -243,7 +243,7 @@ The next sections show how you can run specific tests, and how to control how mu
 If you want to get more information about the test run you can change the _verbosity_. For example, to list the test successes as well as failures (and a whole bunch of information about how the testing database is set up) you can set the verbosity to "2" as shown:
 
 ```bash
-python manage.py test --verbosity 2
+uv run python manage.py test --verbosity 2
 ```
 
 The allowed verbosity levels are 0, 1, 2, and 3, with the default being "1".
@@ -255,7 +255,7 @@ The use of `--parallel auto` below runs one test process per available core.
 The `auto` is optional, and you can also specify a particular number of cores to use.
 
 ```bash
-python manage.py test --parallel auto
+uv run python manage.py test --parallel auto
 ```
 
 For more information, including what to do if your tests are not independent, see [DJANGO_TEST_PROCESSES](https://docs.djangoproject.com/en/6.1/ref/django-admin/#envvar-DJANGO_TEST_PROCESSES).
@@ -266,16 +266,16 @@ If you want to run a subset of your tests you can do so by specifying the full d
 
 ```bash
 # Run the specified module
-python manage.py test catalog.tests
+uv run python manage.py test catalog.tests
 
 # Run the specified module
-python manage.py test catalog.tests.test_models
+uv run python manage.py test catalog.tests.test_models
 
 # Run the specified class
-python manage.py test catalog.tests.test_models.YourTestClass
+uv run python manage.py test catalog.tests.test_models.YourTestClass
 
 # Run the specified method
-python manage.py test catalog.tests.test_models.YourTestClass.test_one_plus_one_equals_two
+uv run python manage.py test catalog.tests.test_models.YourTestClass.test_one_plus_one_equals_two
 ```
 
 ### Other test runner options

@@ -576,8 +576,8 @@ def is_overdue(self):
 Now that we've updated our models, we'll need to make fresh migrations on the project and then apply those migrations:
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+uv run python manage.py makemigrations
+uv run python manage.py migrate
 ```
 
 ### Admin

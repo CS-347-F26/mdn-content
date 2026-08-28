@@ -99,7 +99,7 @@ The **manage.py** script is used to create applications, work with databases, an
 Next, run the following command to create the _catalog_ application that will live inside our _locallibrary_ project. Make sure to run this command from the same folder as your project's **manage.py**:
 
 ```bash
-python manage.py startapp catalog
+uv run python manage.py startapp catalog
 ```
 
 > [!NOTE]
@@ -307,8 +307,8 @@ Django uses an Object-Relational-Mapper (ORM) to map model definitions in the Dj
 When we created the website, Django automatically added a number of models for use by the admin section of the site (which we'll look at later). Run the following commands to define tables for those models in the database (make sure you are in the directory that contains **manage.py**):
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+uv run python manage.py makemigrations
+uv run python manage.py migrate
 ```
 
 > [!WARNING]
@@ -333,7 +333,7 @@ During development, you can serve the website first using the _development web s
 Run the _development web server_ by calling the `runserver` command (in the same directory as **manage.py**):
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 Once the server is running, you can view the site by navigating to `http://127.0.0.1:8000/` in your local web browser. You should see a site error page that looks like this:
