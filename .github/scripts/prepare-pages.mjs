@@ -88,14 +88,14 @@ if (!buildRoot) {
 // user or organization site. Normalize away any trailing slash.
 const basePath = rawBasePath.replace(/\/+$/, "");
 
-/** Collect every `*.html` file in the build. */
-async function htmlFiles(dir) {
+/** Collect every file matching `ext` in the build. */
+async function findFiles(dir, ext) {
   const found = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      found.push(...(await htmlFiles(full)));
-    } else if (entry.name.endsWith(".html")) {
+      found.push(...(await findFiles(full, ext)));
+    } else if (entry.name.endsWith(ext)) {
       found.push(full);
     }
   }
@@ -166,7 +166,26 @@ function track(url) {
   return target;
 }
 
-const files = await htmlFiles(buildRoot);
+// Rewrite root-absolute url() references in CSS files so assets resolve
+// correctly when the site is served from a sub-path (GitHub project site).
+if (basePath) {
+  const cssFiles = await findFiles(buildRoot, ".css");
+  for (const file of cssFiles) {
+    const original = await readFile(file, "utf-8");
+    const updated = original.replace(
+      /\burl\((['"]?)(\/(?!\/)[^)'"\s]+)\1\)/g,
+      (whole, quote, url) => {
+        const target = resolve(url);
+        return target === url ? whole : `url(${quote}${target}${quote})`;
+      },
+    );
+    if (updated !== original) {
+      await writeFile(file, updated);
+    }
+  }
+}
+
+const files = await findFiles(buildRoot, ".html");
 for (const file of files) {
   const original = await readFile(file, "utf-8");
 
