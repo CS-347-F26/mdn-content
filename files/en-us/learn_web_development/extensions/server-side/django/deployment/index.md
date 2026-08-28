@@ -181,7 +181,7 @@ python manage.py check --deploy
 While we don't need _Gunicorn_ to serve our LocalLibrary application during development, we'll add it locally so that it becomes part of our [dependencies](#dependencies) when the application is deployed.
 
 First make sure that you're in the **.venv** virtual environment that was created in your project folder when you [set up the development environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#using_a_virtual_environment) (activate it from the project root with `source .venv/bin/activate` on Linux/macOS, or `.venv\Scripts\activate.bat` on Windows).
-Then install _Gunicorn_ locally on the command line using _pip_:
+Then install _Gunicorn_ locally on the command line using _uv_:
 
 ```bash
 uv add gunicorn

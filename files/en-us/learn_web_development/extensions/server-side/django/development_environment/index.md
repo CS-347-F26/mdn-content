@@ -84,7 +84,7 @@ Django officially supports the PostgreSQL, MariaDB, MySQL, Oracle, and SQLite da
 For this article (and most of this module) we will be using the _SQLite_ database, which stores its data in a file. SQLite is intended for use as a lightweight database and can't support a high level of concurrency. It is, however, an excellent choice for applications that are primarily read-only.
 
 > [!NOTE]
-> Django is configured to use SQLite by default when you start your website project using the standard tools (`python -m django startproject`). It's a great choice when you're getting started because it requires no additional configuration or setup.
+> Django is configured to use SQLite by default when you start your website project using the standard tools (`uv run django-admin startproject ...`). It's a great choice when you're getting started because it requires no additional configuration or setup.
 
 #### Installing system-wide or in a Python virtual environment?
 
@@ -198,7 +198,7 @@ In addition to branches, it is possible to create `tags` on any branch and later
 ### Create an account and repository on GitHub
 
 First we will create an account on GitHub (this is free).
-Then we create and configure a repository named "django_local_library" for storing the [Local library website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) as we evolve it in the rest of this tutorial.
+Then we create and configure a repository named "locallibrary" for storing the [Local library website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) as we evolve it in the rest of this tutorial.
 
 The steps are:
 
@@ -206,7 +206,7 @@ The steps are:
 2. Once you are logged in, click the **+** link in the top toolbar and select **New repository**.
 3. Fill in all the fields on this form.
    While these are not compulsory, they are strongly recommended.
-   - Enter a repository name: "django_local_library".
+   - Enter a repository name: "locallibrary".
    - Enter a new repository description: "Local Library website written in Django".
    - Select "Public" for the repository (the default).
 
@@ -229,13 +229,13 @@ Now that the repository ("repo") is created on GitHub we are going to want to cl
 
 1. On GitHub, click the green **Code** button.
    In the "Clone" section, select the "HTTPS" tab, and copy the URL.
-   If you used the repository name "django_local_library", the URL should be something like: `https://github.com/<your_git_user_id>/django_local_library.git`.
+   If you used the repository name "locallibrary", the URL should be something like: `https://github.com/<your_git_user_id>/locallibrary.git`.
 
 2. Install _git_ for your local computer ([official Git download guide](https://git-scm.com/downloads/)).
 3. Open a command prompt/terminal and clone your repo using the URL you copied above:
 
    ```bash
-   git clone https://github.com/<your_git_user_id>/django_local_library.git
+   git clone https://github.com/<your_git_user_id>/locallibrary.git
    ```
 
    This will create the repository inside the current directory.
@@ -243,7 +243,7 @@ Now that the repository ("repo") is created on GitHub we are going to want to cl
 4. Navigate into the repo folder.
 
    ```bash
-   cd django_local_library
+   cd locallibrary
    ```
 
 ### Modify and sync changes
@@ -339,7 +339,7 @@ This repo is the project folder for the rest of the module: the virtual environm
 
 ## Using Django inside a Python virtual environment
 
-Now that you have a project folder — the **django_local_library** repo you cloned in the previous section — you can describe the project to uv and create the Python virtual environment that the rest of this module runs inside.
+Now that you have a project folder — the **locallibrary** repo you cloned in the previous section — you can describe the project to uv and create the Python virtual environment that the rest of this module runs inside.
 
 Throughout this module, and for every Django project you create afterwards, the rule is the same: **the virtual environment lives in a folder named `.venv` at the root of the project it belongs to**, which is also where uv puts it by default.
 Keeping it beside the code, under a predictable name, means that:
@@ -354,35 +354,27 @@ Keeping it beside the code, under a predictable name, means that:
 Open a command shell (or terminal window), navigate to the root of your project, and describe the project to uv:
 
 ```bash
-cd django_local_library
-uv init --bare --python 3.12
+cd locallibrary
+uv init --bare --python 3.14
+uv pin python 3.14
+
 ```
 
 **pyproject.toml** is the standard file for describing a Python project, and it is where your dependencies will be listed.
-`--bare` tells uv to create only that file and leave the rest of your repository alone, and `--python 3.12` records the oldest Python the project supports — 3.12, because that is the oldest release Django 6.1 runs on.
+`--bare` tells uv to create only that file and leave the rest of your repository alone, and `--python 3.14` records the oldest Python the project supports — 3.14, because that is the newest release Django 6.1 runs on.
 The file it writes looks like this:
 
 ```toml
 [project]
 name = "django-local-library"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = []
 ```
 
-The name comes from your folder, normalized to the form Python packaging uses, so **django_local_library** becomes `django-local-library`.
+The name comes from your folder, normalized to the form Python packaging uses, so **locallibrary** becomes `locallibrary`.
 
-Now create the environment:
-
-```bash
-uv venv
-```
-
-```plain
-Using CPython 3.14.7
-Creating virtual environment at: .venv
-Activate with: source .venv/bin/activate
-```
+uv will use a venv for you by default.
 
 uv downloads a suitable interpreter if it cannot find one already — the newest release allowed by `requires-python` — and creates a **.venv** folder holding that interpreter and its own package directory.
 
@@ -393,7 +385,7 @@ uv downloads a suitable interpreter if it cannot find one already — the newest
 
 ### Using a virtual environment
 
-The environment has to be _activated_ before it does anything.
+The environment has to be _activated_ before it does anything. `uv` automatically uses the venv it creates when you run `uv` commands, but if you need to activate it in your shell for other reasons, here's how you do it.
 Activation is the one command in this module whose form differs between operating systems — run it from the project root:
 
 ```bash
@@ -410,10 +402,14 @@ source .venv/bin/activate
 You can tell that it worked because your prompt is now prefixed with the name of the environment folder:
 
 ```plain
-(.venv) ubuntu@ubuntu:~/django_local_library$
+(.venv) ubuntu@ubuntu:~/locallibrary$
 ```
 
 From this point on `python` refers to the environment's own copy on every platform, and anything uv installs goes into **.venv** rather than into a system-wide Python.
+You can check this by running:
+
+- Windows: `where.exe python` and then observe which python is first
+- linux/macos: `which python`
 
 > [!NOTE]
 > If PowerShell refuses to run the activation script with a message about the execution policy, allow locally created scripts for the current user by running `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` and then try again.
@@ -432,7 +428,7 @@ There are just a few other commands you should know:
 With the project set up, add Django as a dependency:
 
 ```bash
-uv add "django~=6.1"
+uv add "django"
 ```
 
 ```plain
@@ -453,9 +449,9 @@ Pinning the version like this is what stops an unrelated upgrade from breaking y
 
 ```toml
 [project]
-name = "django-local-library"
+name = "locallibrary"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "django~=6.1",
 ]
