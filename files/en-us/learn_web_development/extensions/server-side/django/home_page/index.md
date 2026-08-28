@@ -393,7 +393,7 @@ We can also specify specific locations for Django to search for directories usin
 
 ## What does it look like?
 
-At this point we have created all required resources to display the index page. Run the server (`python manage.py runserver`) and open `http://127.0.0.1:8000/` in your browser. If everything is configured correctly, your site should look like the following screenshot.
+At this point we have created all required resources to display the index page. Run the server (`uv run python manage.py runserver`) and open `http://127.0.0.1:8000/` in your browser. If everything is configured correctly, your site should look like the following screenshot.
 
 ![Index page for LocalLibrary website](index_page_ok.png)
 

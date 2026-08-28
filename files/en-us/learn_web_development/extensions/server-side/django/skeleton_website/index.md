@@ -34,7 +34,7 @@ This article shows how you can create a "skeleton" website, which you can then p
 
 To get started:
 
-1. Use the `python -m django startproject` command to generate a project folder, the basic file templates, and **manage.py**, which serves as your project management script.
+1. Use the `uv run python -m django startproject` command to generate a project folder, the basic file templates, and **manage.py**, which serves as your project management script.
 2. Use **manage.py** to create one or more _applications_.
 
    > [!NOTE]

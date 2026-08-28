@@ -45,7 +45,7 @@ We'll also show you how to create permissions, and check on login status and per
 The authentication was enabled automatically when we [created the skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website) (in tutorial 2) so you don't need to do anything more at this point.
 
 > [!NOTE]
-> The necessary configuration was all done for us when we created the app using the `python -m django startproject` command. The database tables for users and model permissions were created when we first called `python manage.py migrate`.
+> The necessary configuration was all done for us when we created the app using the `uv run python -m django startproject` command. The database tables for users and model permissions were created when we first called `uv run python manage.py migrate`.
 
 The configuration is set up in the `INSTALLED_APPS` and `MIDDLEWARE` sections of the project file (**django_local_library/locallibrary/settings.py**), as shown below:
 
@@ -66,7 +66,7 @@ MIDDLEWARE = [
 
 ## Creating users and groups
 
-You already created your first user when we looked at the [Django admin site](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Admin_site) in tutorial 4 (this was a superuser, created with the command `python manage.py createsuperuser`).
+You already created your first user when we looked at the [Django admin site](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Admin_site) in tutorial 4 (this was a superuser, created with the command `uv run python manage.py createsuperuser`).
 Our superuser is already authenticated and has all permissions, so we'll need to create a test user to represent a normal site user. We'll be using the admin site to create our _locallibrary_ groups and website logins, as it is one of the quickest ways to do so.
 
 > [!NOTE]
@@ -727,7 +727,7 @@ class BookInstance(models.Model):
 
 We could then assign the permission to a "Librarian" group in the Admin site.
 
-Open the **catalog/models.py**, and add the permission as shown above. You will need to re-run your migrations (call `python manage.py makemigrations` and `python manage.py migrate`) to update the database appropriately.
+Open the **catalog/models.py**, and add the permission as shown above. You will need to re-run your migrations (call `uv run python manage.py makemigrations` and `uv run python manage.py migrate`) to update the database appropriately.
 
 ### Templates
 

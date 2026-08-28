@@ -589,7 +589,7 @@ Django automatically creates a method `get_foo_display()` for every choices fiel
 
 ## What does it look like?
 
-At this point, we should have created everything needed to display both the book list and book detail pages. Run the server (`python manage.py runserver`) and open your browser to `http://127.0.0.1:8000/`.
+At this point, we should have created everything needed to display both the book list and book detail pages. Run the server (`uv run python manage.py runserver`) and open your browser to `http://127.0.0.1:8000/`.
 
 > [!WARNING]
 > Don't click any author or author detail links yet — you'll create those in the challenge!

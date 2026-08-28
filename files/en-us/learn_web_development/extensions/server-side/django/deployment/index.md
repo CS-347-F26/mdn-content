@@ -98,7 +98,7 @@ Most providers also offer a "basic" tier that is intended for small production s
 
 ## Getting your website ready to publish
 
-The [Django skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website) created using the `python -m django startproject` command and the _manage.py_ script is configured to make development easier. Many of the Django project settings (specified in **settings.py**) should be different for production, either for security or performance reasons.
+The [Django skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website) created using the `uv run python -m django startproject` command and the _manage.py_ script is configured to make development easier. Many of the Django project settings (specified in **settings.py**) should be different for production, either for security or performance reasons.
 
 > [!NOTE]
 > It is common to have a separate **settings.py** file for production, and/or to conditionally import sensitive settings from a separate file or an environment variable. This file should then be protected, even if the rest of the source code is available on a public repository.
@@ -766,8 +766,8 @@ web: python manage.py migrate && python manage.py collectstatic --no-input && gu
 ```
 
 The `web:` prefix tells Railway that this is a web process and can be sent HTTP traffic.
-We then call the command Django migration command `python manage.py migrate` to set up the database tables.
-Next, we call the Django command `python manage.py collectstatic` to collect static files into the folder defined by the `STATIC_ROOT` project setting (see the section [serving static files in production](#serving_static_files_in_production) below).
+We then call the command Django migration command `uv run python manage.py migrate` to set up the database tables.
+Next, we call the Django command `uv run python manage.py collectstatic` to collect static files into the folder defined by the `STATIC_ROOT` project setting (see the section [serving static files in production](#serving_static_files_in_production) below).
 Finally, we start the _gunicorn_ process, a popular web application server, passing it configuration information in the module `locallibrary.wsgi` (created with our application skeleton: **/locallibrary/wsgi.py**).
 
 You will note that we already set up the project to include _gunicorn_ and support serving static files!
