@@ -228,14 +228,14 @@ The steps are:
 Now that the repository ("repo") is created on GitHub we are going to want to clone (copy) it to our local computer:
 
 1. On GitHub, click the green **Code** button.
-   In the "Clone" section, select the "HTTPS" tab, and copy the URL.
-   If you used the repository name "locallibrary", the URL should be something like: `https://github.com/<your_git_user_id>/locallibrary.git`.
+   In the "Clone" section, select the "SSH" tab, and copy the address.
+   If you used the repository name "locallibrary", the address should be something like: `git@github.com:<your_git_user_id>/locallibrary.git`.
 
 2. Install _git_ for your local computer ([official Git download guide](https://git-scm.com/downloads/)).
 3. Open a command prompt/terminal and clone your repo using the URL you copied above:
 
    ```bash
-   git clone https://github.com/<your_git_user_id>/locallibrary.git
+   git clone git@github.com:<your_git_user_id>/locallibrary.git
    ```
 
    This will create the repository inside the current directory.
@@ -268,15 +268,16 @@ This is a useful change to make, but mostly we're doing it to show you how to pu
 2. Next we checkout a new branch to store our changes:
 
    ```bash
-   git checkout -b update_gitignore
+   git switch -c update_gitignore
    ```
 
-   The `checkout` command is used to switch some branch to be the current branch that you are working on.
-   The `-b` flag indicates that we intend to create a new branch named "update_gitignore" instead of selecting an existing branch with that name.
+   The `switch` command is used to switch some branch to be the current branch that you are working on.
+   The `-c` flag indicates that we intend to create a new branch named "update_gitignore" instead of selecting an existing branch with that name.
 
 3. Open the **.gitignore** file, copy the following lines into the bottom of it, and then save:
 
    ```plain
+   # from: https://cs-347-f26.github.io/mdn-content/en-us/docs/learn_web_development/extensions/server-side/django/development_environment/#source_code_management_with_git_and_github
    # Text backup files
    *.bak
 
@@ -333,7 +334,18 @@ This is a useful change to make, but mostly we're doing it to show you how to pu
 
    After merging, the "main" branch on the repo on GitHub will contain your changes to `.gitignore`.
 
-9. You can continue to update your local repo as files change using this add/commit/push cycle.
+9. You can continue to update your local repo as files change using this switch/add/commit/push cycle.
+
+    When the changes you're making are less related to the previous task, and after you've committed your changes, you may wish to either `switch` back to `main` and/or to switch to a new branch that you create to track the changes related to the new task.
+
+    ```sh
+    git switch main
+    git pull
+
+    # if you are going to work on a new task (e.g. using a virtual environment
+    # with python via uv), you might wish to:
+    git switch -c venv_via_uv
+    ```
 
 This repo is the project folder for the rest of the module: the virtual environment we create next lives inside it, and it is where the local library website source code will be stored.
 
@@ -354,9 +366,9 @@ Keeping it beside the code, under a predictable name, means that:
 Open a command shell (or terminal window), navigate to the root of your project, and describe the project to uv:
 
 ```bash
-cd locallibrary
+cd locallibrary # this command might be unnecessary if you're proceeding directly from above
 uv init --bare --python 3.14
-uv pin python 3.14
+uv python pin 3.14
 
 ```
 
