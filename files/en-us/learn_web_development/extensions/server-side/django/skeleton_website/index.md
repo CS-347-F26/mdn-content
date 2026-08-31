@@ -410,7 +410,7 @@ We won't necessarily mention this again in future, but you may find it useful to
 
 > [!NOTE]
 > Compare the file listing you see on github.com for your repository to what you see in the local filesystem (i.e. on your laptop).
-> Are they _exactly_ the same? Should they be? If there are differences, can you [justify all discrepancies](../development_environment/#source_code_management_with_git_and_github:~:text=.gitignore file)?
+> Are they _exactly_ the same? Should they be? If there are differences, can you [justify all discrepancies](../development_environment/#source_code_management_with_git_and_github:~:text=.gitignore%20file)?
 
 ## Challenge yourself
 
