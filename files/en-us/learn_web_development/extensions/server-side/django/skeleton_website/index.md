@@ -76,16 +76,16 @@ To create the project:
    ```bash
    locallibrary/
        .venv
-       locallibrary_config/ # newly created
-          __init__.py       # newly created
-          settings.py       # newly created
-          urls.py           # newly created
-          wsgi.py           # newly created
-          asgi.py           # newly created
+       locallibrary_config/
+          __init__.py
+          settings.py
+          urls.py
+          wsgi.py
+          asgi.py
        .gitignore
        .python-version
        LICENSE
-       manage.py            # newly created
+       manage.py
        pyproject.toml
        uv.lock
    ```
@@ -119,16 +119,27 @@ The updated project directory should now look like this:
 
 ```bash
 locallibrary/
+    .venv
+    catalog/        # newly created
+        admin.py    # newly created
+        apps.py     # newly created
+        models.py   # newly created
+        tests.py    # newly created
+        views.py    # newly created
+        __init__.py # newly created
+        migrations/ # newly created
+    locallibrary_config/ 
+       __init__.py
+       settings.py
+       urls.py
+       wsgi.py
+       asgi.py
+    .gitignore
+    .python-version
+    LICENSE
     manage.py
-    locallibrary_config/
-    catalog/
-        admin.py
-        apps.py
-        models.py
-        tests.py
-        views.py
-        __init__.py
-        migrations/
+    pyproject.toml
+    uv.lock
 ```
 
 In addition we now have:
@@ -185,7 +196,7 @@ Later on in the [Deploying Django to production](/en-US/docs/Learn_web_developme
 The **settings.py** file is also used for configuring a number of other settings, but at this point, you probably only want to change the [TIME_ZONE](https://docs.djangoproject.com/en/6.1/ref/settings/#std:setting-TIME_ZONE) — this should be made equal to a string from the standard [List of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (the TZ column in the table contains the values you want). Change your `TIME_ZONE` value to one of these strings appropriate for your time zone, for example:
 
 ```python
-TIME_ZONE = 'Europe/London'
+TIME_ZONE = 'America/New_York'
 ```
 
 There are two other settings you won't change now, but that you should be aware of:
@@ -251,7 +262,7 @@ Add the following lines to the bottom of the file:
 # Add URL maps to redirect the base URL to our application
 from django.views.generic import RedirectView
 urlpatterns += [
-    path('', RedirectView.as_view(url='catalog/', permanent=True)),
+    path('', RedirectView.as_view(url='catalog/')),
 ]
 ```
 
@@ -289,9 +300,18 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 > ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 > ```
 
-As a final step, create a file inside your _catalog_ folder called **urls.py**, and add the following text to define the (empty) imported `urlpatterns`. This is where we'll add our patterns as we build the application.
+As a final step, **create a NEW file inside your 👀 _catalog_ folder** called **urls.py**, and add the following text to define the (empty) imported `urlpatterns`. This is where we'll add our patterns as we build the application.
 
 ```python
+import pathlib
+
+# I solemnly swear I'm not pasting this where I pasted the several preceding pastes!
+# this is in locallibrary/catalog/urls.py which I *just* created
+# the current file is definitely NOT locallibrary/locallibrary_config/urls.py!
+_this_dir = pathlib.Path(__file__).resolve().parent
+assert not (_this_dir / "settings.py").exists(), "catalog/urls.py should NOT have a sibling named settings.py"
+assert (_this_dir / "models.py").exists(), "catalog/urls.py should have a sibling named models.py"
+
 from django.urls import path
 from . import views
 
@@ -387,6 +407,10 @@ git pull origin main
 > If you don't delete the `skeleton_website` branch you can always switch back to it at some later point.
 
 We won't necessarily mention this again in future, but you may find it useful to update GitHub with your changes at the end of each section in this tutorial.
+
+> [!NOTE]
+> Compare the file listing you see on github.com for your repository to what you see in the local filesystem (i.e. on your laptop).
+> Are they _exactly_ the same? Should they be? If there are differences, can you [justify all discrepancies](../development_environment/#source_code_management_with_git_and_github:~:text=.gitignore file)?
 
 ## Challenge yourself
 
