@@ -61,7 +61,7 @@ At the end of this article, we discuss other site-wide configuration you might a
 To create the project:
 
 1. Open a command shell (or a terminal window) and navigate to the **locallibrary** repository that you [cloned when setting up the development environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#clone_the_repo_to_your_local_computer).
-2. [Activate the **.venv** virtual environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#using_a_virtual_environment) you created there (`source .venv/bin/activate` on Linux/macOS).
+2. [Activate the **.venv** virtual environment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#using_a_virtual_environment) you created there (`source .venv/bin/activate` on Linux/macOS, though this is technically not necessary if you're using `uv` as written. It won't hurt though).
 3. Create the new project _in place_ using the `startproject` command, noting the trailing `.` at the end of the command:
 
    ```bash
@@ -71,17 +71,23 @@ To create the project:
    The trailing `.` means "create the project here", so **manage.py** is written into the current folder instead of into a new sub-folder.
    Your repository is therefore also the project root, and everything you create from now on is already under version control — there is nothing to move later.
 
-   The command adds the following files, alongside the **README.md**, **.gitignore**, and **.venv** that are already in the folder:
+   The command adds **manage.py** and **locallibrary_config** (and its children), alongside the pre-existing files resulting in these:
 
    ```bash
    locallibrary/
-       manage.py
-       locallibrary_config/
-           __init__.py
-           settings.py
-           urls.py
-           wsgi.py
-           asgi.py
+       .venv
+       locallibrary_config/ # newly created
+          __init__.py       # newly created
+          settings.py       # newly created
+          urls.py           # newly created
+          wsgi.py           # newly created
+          asgi.py           # newly created
+       .gitignore
+       .python-version
+       LICENSE
+       manage.py            # newly created
+       pyproject.toml
+       uv.lock
    ```
 
 The _locallibrary\_config_ project sub-folder is the entry point for the website:
