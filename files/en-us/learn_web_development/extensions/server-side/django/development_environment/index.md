@@ -452,10 +452,7 @@ Installed 3 packages in 65ms
  + sqlparse==0.6.0
 ```
 
-That one command does three things: it records `django~=6.1` in **pyproject.toml**, installs Django and everything it depends on into **.venv**, and writes a **uv.lock** file pinning the exact version of every package it installed.
-
-The `~=6.1` specifier accepts the newest 6.1.x release, and future 6.1 patch releases, but not Django 6.2 or later.
-Pinning the version like this is what stops an unrelated upgrade from breaking your project halfway through the tutorial.
+That one command does three things: it records `django>=6.1` in **pyproject.toml**, installs Django and everything it depends on into **.venv**, and writes a **uv.lock** file pinning the exact version of every package it installed.
 
 **pyproject.toml** now reads:
 
@@ -465,7 +462,7 @@ name = "locallibrary"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
-    "django~=6.1",
+    "django>=6.1",
 ]
 ```
 
@@ -477,19 +474,20 @@ uv run python -m django --version
 
 It should report a version starting with `6.1`.
 
-Commit **pyproject.toml** and **uv.lock** to git along with the rest of your source.
+Commit **pyproject.toml**, **.python-version**, and **uv.lock** to git along with the rest of your source.
 Between them they let anyone — a classmate, or your production server — recreate your environment exactly, with a single command:
 
 ```bash
 uv sync
 ```
 
-We will add more dependencies with `uv add` in the [deployment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Deployment) article. Each one updates both files, and you commit them again.
+We will add more dependencies with `uv add` in the [deployment](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Deployment) article. Each one updates both **pyproject.toml** and **uv.lock** files, and you commit them again.
 
 > [!NOTE]
-> The two files do different jobs.
+> These two files do different jobs.
 > **pyproject.toml** says what your project _wants_ ("some Django 6.1"), and you can edit it.
 > **uv.lock** says what it actually _got_, down to the exact version and file hash of every package, and uv maintains it for you — never edit it by hand.
+> (and `.python-version` specifies the version of the python interpreter itself that your project requires for tools that might not read it properly from **pyproject.toml**)
 
 ## Other Python tools
 
@@ -530,7 +528,7 @@ Once the server is running you can view the site by navigating to the following 
 
 ![The home page of the skeleton Django app](django_skeleton_app_homepage_django_4_0.png)
 
-Stop the server with <kbd>Ctrl</kbd> + <kbd>C</kbd> when you're done.
+Stop the server with <kbd>Ctrl</kbd> + <kbd>C</kbd> (yes <kbd>Ctrl</kbd> even if you're on a mac!) when you're done.
 
 This was only a scratch project, so return to the project root and delete the **mytestsite** folder before you commit anything — the real site is created in the next article.
 
