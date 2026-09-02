@@ -220,11 +220,13 @@ for (const file of files) {
     /<meta\s+name="og:url"\s+content="([^"]+)"/i,
   )?.[1];
 
+  const isDjango = /\/django\//i.test(file);
   updated = updated.replace(
     /<head(\s[^>]*)?>/i,
     (tag) =>
       `${tag}<meta name="robots" content="noindex, nofollow">` +
-      (mdnUrl ? `<link rel="canonical" href="${mdnUrl}">` : ""),
+      (mdnUrl ? `<link rel="canonical" href="${mdnUrl}">` : "") +
+      (isDjango ? `<style>body{background-color:#450084 !important}</style>` : ""),
   );
 
   updated = updated.replace(/<body(\s[^>]*)?>/i, (tag) => tag + notice(mdnUrl));
