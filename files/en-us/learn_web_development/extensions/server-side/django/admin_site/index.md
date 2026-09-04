@@ -52,6 +52,11 @@ Register the models by copying the following text into the bottom of the file. T
 ```python
 from .models import Author, Genre, Book, BookInstance, Language
 
+# consider adding save_as to more easily add instance that have similar values
+# you could do this for any or all of the below, e.g.
+# admin.site.register(Book, save_as=True)
+# except mayeb not bookinstance tho
+
 admin.site.register(Book)
 admin.site.register(Author)
 admin.site.register(Genre)
@@ -95,7 +100,7 @@ Enter values for the fields. You can create new authors or genres by pressing th
 ![Admin Site - Book Add](admin_book_add.png)
 
 > [!NOTE]
-> At this point we'd like you to spend some time adding a few books, authors, languages, and genres (e.g., Fantasy) to your application. Make sure that each author and genre includes a couple of different books (this will make your list and detail views more interesting when we implement them later on in the article series).
+> At this point we'd like you to spend some time adding a **few** books, authors, languages, and genres (e.g., Fantasy) to your application. Make sure that each author and genre includes a couple of different books (this will make your list and detail views more interesting when we implement them later on in the article series). We'll soon do this programmatically, so don't waste too much time.
 
 When you've finished adding books, click on the **Home** link in the top bookmark to be taken back to the main admin page. Then click on the **Books** link to display the current list of books (or on one of the other links to see other model lists). Now that you've added a few books, the list might look similar to the screenshot below. The title of each book is displayed; this is the value returned in the Book model's `__str__()` method that we specified in the last article.
 
@@ -158,6 +163,8 @@ Now add a new `AuthorAdmin` and registration as shown below.
 ```python
 # Define the admin class
 class AuthorAdmin(admin.ModelAdmin):
+    # optionally enable "save as new", by uncommenting line below
+    # save_as = True
     pass
 
 # Register the admin class with the associated model
