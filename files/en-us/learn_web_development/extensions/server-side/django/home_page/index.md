@@ -232,38 +232,38 @@ We will use the following code snippet as the base template for the _LocalLibrar
 Create a new file **base_generic.html** in **/locallibrary/catalog/templates/** and paste the following code to the file:
 
 ```django
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    {% block title %}
-      <title>Local Library</title>
-    {% endblock %}
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous">
+
+<head>
+    <title>{% block title %}Local Library{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://fav.farm/❤️">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Add additional CSS in static file -->
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-2">
-          {% block sidebar %}
-            <ul class="sidebar-nav">
-              <li><a href="{% url 'index' %}">Home</a></li>
-              <li><a href="">All books</a></li>
-              <li><a href="">All authors</a></li>
-            </ul>
-          {% endblock %}
+        <div class="row">
+            <div class="col-sm-2">
+                {% block sidebar %}
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="">All books</a></li>
+                    <li><a href="">All authors</a></li>
+                </ul>
+                {% endblock %}
+            </div>
+            <div class="col-sm-10 ">{% block content %}{% endblock %}</div>
         </div>
-        <div class="col-sm-10 ">{% block content %}{% endblock %}</div>
-      </div>
     </div>
-  </body>
+</body>
+
 </html>
 ```
 
@@ -345,6 +345,9 @@ You can add an image into the page in a similar way, for example:
   alt="UML diagram"
   style="width:555px;height:540px;" />
 ```
+
+> [!NOTE]
+> Despite extending `base_generic.html`, `index.html` has not successfully loaded the `static` tag. [Each template must load the tags it needs](https://docs.djangoproject.com/en/dev/ref/templates/language/#custom-libraries-and-template-inheritance), even if the template is a child (or other descendant) of one that already loaded the tag, and even if the template is a parent (or other ancestor) of another that already loaded the tag.
 
 > [!NOTE]
 > The samples above specify where the files are located, but Django does not serve them by default. We configured the development web server to serve files by modifying the global URL mapper (**/locallibrary/locallibrary_config/urls.py**) when we [created the website skeleton](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website), but still need to enable file serving in production. We'll look at this later.
