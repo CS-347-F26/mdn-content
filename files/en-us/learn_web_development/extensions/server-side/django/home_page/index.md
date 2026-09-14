@@ -414,6 +414,15 @@ Here are a couple of tasks to test your familiarity with model queries, views, a
 
 2. Modify the [view](#view_function-based) to generate counts for _genres_ and _books_ that contain a particular word (case insensitive), and pass the results to the `context`. You accomplish this in a similar way to creating and using `num_books` and `num_instances_available`. Then update the [index template](#the_index_template) to include these variables.
 
+3. Add an image of [this character](https://w3.cs.jmu.edu/cs347/f26/stewart.jpeg) to the end of your index page.
+    ```html
+    <img src="https://w3.cs.jmu.edu/cs347/f26/stewart.jpeg" alt="Dr. Stewart rockin' that Carolina Blue koy Kahala">
+    ```
+    Did it work? 😅
+4. Download a small copy of [this cutie pie](https://en.wikipedia.org/wiki/Brown_bear#/media/File:2010-kodiak-bear-1.jpg) to your project. Add that image after the previous one.
+    1. Did it work? 😬
+    2. If not, what's the difference between the 2 images? How might you fix it?
+
 ## Summary
 
 We just created the home page for our site — an HTML page that displays a number of records from the database and links to other yet-to-be-created pages. Along the way we learned fundamental information about URL mappers, views, querying the database with models, passing information to a template from a view, and creating and extending templates.
