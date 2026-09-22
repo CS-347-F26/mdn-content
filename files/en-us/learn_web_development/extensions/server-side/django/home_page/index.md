@@ -333,7 +333,7 @@ Within the template you first call the `load` template tag specifying "static" t
 ```django
 <!-- Add additional CSS in static file -->
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 ```
 
 You can add an image into the page in a similar way, for example:
@@ -343,7 +343,7 @@ You can add an image into the page in a similar way, for example:
 <img
   src="{% static 'images/local_library_model_uml.png' %}"
   alt="UML diagram"
-  style="width:555px;height:540px;" />
+  style="width:555px;height:540px;">
 ```
 
 > [!NOTE]

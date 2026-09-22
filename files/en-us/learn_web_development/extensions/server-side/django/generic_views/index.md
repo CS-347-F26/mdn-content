@@ -484,7 +484,7 @@ Create the HTML file **/locallibrary/catalog/templates/catalog/book_detail.html*
     <h4>Copies</h4>
 
     {% for copy in book.bookinstance_set.all %}
-      <hr />
+      <hr>
       <p
         class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}text-warning{% endif %}">
         \{{ copy.get_status_display }}

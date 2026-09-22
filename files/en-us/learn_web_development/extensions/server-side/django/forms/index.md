@@ -56,8 +56,8 @@ The form is defined in HTML as a collection of elements inside `<form>…</form>
     id="team_name"
     type="text"
     name="name_field"
-    value="Default name for team." />
-  <input type="submit" value="OK" />
+    value="Default name for team.">
+  <input type="submit" value="OK">
 </form>
 ```
 
@@ -442,8 +442,8 @@ Perhaps unsurprisingly, when used as shown this provides the default rendering o
       name="renewal_date"
       type="text"
       value="2023-11-08"
-      required />
-    <br />
+      required>
+    <br>
     <span class="helptext">
       Enter date between now and 4 weeks (default 3 weeks).
     </span>
@@ -468,8 +468,8 @@ If you were to enter an invalid date, you'd additionally get a list of the error
       name="renewal_date"
       type="text"
       value="2023-11-08"
-      required />
-    <br />
+      required>
+    <br>
     <span class="helptext">
       Enter date between now and 4 weeks (default 3 weeks).
     </span>
@@ -701,7 +701,7 @@ Create the template file `locallibrary/catalog/templates/catalog/author_form.htm
   <table>
     \{{ form.as_table }}
   </table>
-  <input type="submit" value="Submit" />
+  <input type="submit" value="Submit">
 </form>
 {% endblock %}
 ```

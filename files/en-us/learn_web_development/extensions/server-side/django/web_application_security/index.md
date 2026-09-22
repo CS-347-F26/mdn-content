@@ -98,7 +98,7 @@ They would then send the file to all the Librarians and suggest that they open t
         name="first_name"
         type="text"
         value="Mad"
-        required />
+        required>
       <label for="id_last_name">Last name:</label>
       <input
         id="id_last_name"
@@ -106,16 +106,16 @@ They would then send the file to all the Librarians and suggest that they open t
         name="last_name"
         type="text"
         value="Man"
-        required />
+        required>
       <label for="id_date_of_birth">Date of birth:</label>
-      <input id="id_date_of_birth" name="date_of_birth" type="text" />
+      <input id="id_date_of_birth" name="date_of_birth" type="text">
       <label for="id_date_of_death">Died:</label>
       <input
         id="id_date_of_death"
         name="date_of_death"
         type="text"
-        value="12/10/2016" />
-      <input type="submit" value="Submit" />
+        value="12/10/2016">
+      <input type="submit" value="Submit">
     </form>
   </body>
 </html>
@@ -129,7 +129,7 @@ The way the protection is enabled is that you include the `{% csrf_token %}` tem
 <input
   type="hidden"
   name="csrfmiddlewaretoken"
-  value="0QRWHnYVg776y2l66mcvZqp8alrv4lb8S8lZ4ZJUWGZFA5VHrVfL2mpH29YZ39PW" />
+  value="0QRWHnYVg776y2l66mcvZqp8alrv4lb8S8lZ4ZJUWGZFA5VHrVfL2mpH29YZ39PW">
 ```
 
 Django generates a user/browser specific key and will reject forms that do not contain the field, or that contain an incorrect field value for the user/browser.
