@@ -275,19 +275,12 @@ For this tutorial, _collectstatic_ can be run before the application is uploaded
 
 #### settings.py
 
-Open **/locallibrary_config/settings.py** and copy the following configuration into the bottom of the file.
-The `BASE_DIR` should already have been defined in your file (the `STATIC_URL` may already have been defined within the file when it was created.
-While it will cause no harm, you might as well delete the duplicate previous reference).
+You don't need to add anything here: `STATIC_URL` was defined when the project was created, and you set `STATIC_ROOT` (and added **staticfiles/** to your **.gitignore**) in [Django Tutorial Part 2: Creating a skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website#hooking_up_the_url_mapper).
+Open **/locallibrary_config/settings.py** and check that both settings are there, near the bottom of the file:
 
 ```python
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.1/howto/static-files/
-
-# The absolute path to the directory where collectstatic will collect static files for deployment.
+STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# The URL to use when referring to static files (where they will be served from)
-STATIC_URL = '/static/'
 ```
 
 We'll actually do the file serving using a library called [WhiteNoise](https://pypi.org/project/whitenoise/), which we install and configure in the next section.
