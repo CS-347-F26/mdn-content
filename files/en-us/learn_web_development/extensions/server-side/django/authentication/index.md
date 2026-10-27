@@ -419,11 +419,17 @@ You'll be able to test the password reset functionality from the link in the log
 Note that you won't be able to test account logout yet, because logout requests must be sent as a `POST` rather than a `GET` request.
 
 > [!NOTE]
-> The password reset system requires that your website supports email, which is beyond the scope of this article, so this part **won't work yet**. To allow testing, put the following line at the end of your settings.py file. This logs any emails sent to the console (so you can copy the password reset link from the console).
+> The password reset system requires that your website supports email. Sending real email is beyond the scope of this article, but you don't need to add anything to test it: the settings.py that `startproject` created should already have a `MAILERS` setting that uses the console backend, which logs any emails sent to the console (so you can copy the password reset link from the console).
 >
 > ```python
-> EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+> MAILERS = {
+>     'default': {
+>         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+>     },
+> }
 > ```
+>
+> Don't also add the older `EMAIL_BACKEND` setting: Django refuses to start if both are defined.
 >
 > For more information, see [Sending email](https://docs.djangoproject.com/en/6.1/topics/email/) (Django docs).
 
