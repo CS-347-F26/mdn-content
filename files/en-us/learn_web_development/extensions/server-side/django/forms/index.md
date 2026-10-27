@@ -672,6 +672,11 @@ Unfortunately deleting an `Author` will cause an exception if the author has an 
 To handle this case the view overrides the [`form_valid()`](https://docs.djangoproject.com/en/6.1/ref/class-based-views/mixins-editing/#django.views.generic.edit.FormMixin.form_valid) method so that if deleting the `Author` succeeds it redirects to the `success_url`, but if not, it just redirects back to the same form.
 We'll update the template below to make clear that you can't delete an `Author` instance that is used in any `Book`.
 
+> [!NOTE]
+> If you replaced the `author` `ForeignKey` with an `authors` `ManyToManyField` that uses a `BookAuthor` model (via `through`), then the `RESTRICT` rule above no longer applies.
+> What happens instead depends on the `on_delete` of the `author` `ForeignKey` in `BookAuthor`: with `models.CASCADE`, deleting an author succeeds and quietly removes them from all their books, while with `models.RESTRICT` the deletion fails as described above.
+> Either way, the templates below are what stop users from deleting an author who still has books.
+
 ### URL configurations
 
 Open your URL configuration file (**locallibrary/catalog/urls.py**) and add the following configuration to the bottom of the file:
@@ -742,6 +747,12 @@ Create the template file `locallibrary/catalog/templates/catalog/author_confirm_
 The template should be familiar.
 It first checks if the author is used in any books, and if so displays the list of books that must be deleted before the author record can be deleted.
 If not, it displays a form asking the user to confirm they want to delete the author record.
+
+> [!WARNING]
+> `author.book_set` only exists because of the `author` `ForeignKey` on `Book`.
+> If you replaced that with an `authors` `ManyToManyField` declared with `related_name='books'`, use `author.books.all` instead of `author.book_set.all` here (and in **author_detail.html** below).
+> Django templates don't report an error for an attribute that doesn't exist; they just treat it as empty.
+> So with the old name, the template would always offer to delete the author, even one who has books.
 
 The final step is to hook the pages into the sidebar.
 First we'll add a link for creating the author into the _base template_, so that it is visible in all pages for logged in users who are considered "staff" and who have permission to create authors (`catalog.add_author`).
@@ -816,6 +827,63 @@ Create some forms to create, edit, and delete `Book` records. You can use exactl
 If your **book_form.html** template is just a copy-renamed version of the **author_form.html** template, then the new "create book" page will look like the screenshot below:
 
 ![Screenshot displaying various fields in the form like title, author, summary, ISBN, genre and language](forms_example_create_book.png)
+
+### Books with multiple authors
+
+If your `Book` has an `authors` field that is a `ManyToManyField` with `through='BookAuthor'` (where `BookAuthor` also has an `author_order` field), then you can't just list `authors` in the view's `fields`.
+The generated form will display a multi-select list of authors, but when it saves, Django creates the `BookAuthor` records without any `author_order`, and you'll get an error like `IntegrityError: NOT NULL constraint failed: catalog_bookauthor.author_order`.
+
+Instead, leave `authors` out of `fields` and edit the `BookAuthor` records directly using an [inline formset](https://docs.djangoproject.com/en/6.1/topics/forms/modelforms/#inline-formsets).
+A formset is a group of forms for the same model, and an _inline_ formset is one for the objects related to a single parent object (here, all the `BookAuthor` records for one `Book`).
+This is the same thing that your `BookAuthorInline` does in the admin site.
+
+The mixin below adds the formset to the context so that the template can display it, and overrides `form_valid()` so that the book is only saved if the formset is valid too.
+Because it works for both a `CreateView` and an `UpdateView`, you can use it in both:
+
+```python
+from django.forms import inlineformset_factory
+
+from .models import Book, BookAuthor
+
+BookAuthorFormSet = inlineformset_factory(
+    Book, BookAuthor, fields=['author', 'author_order'], extra=2)
+
+class BookAuthorFormSetMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == 'POST':
+            context['author_formset'] = BookAuthorFormSet(self.request.POST, instance=self.object)
+        else:
+            context['author_formset'] = BookAuthorFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        author_formset = BookAuthorFormSet(self.request.POST, instance=form.instance)
+        if not author_formset.is_valid():
+            return self.form_invalid(form)
+        self.object = form.save()
+        author_formset.instance = self.object
+        author_formset.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+class BookCreate(PermissionRequiredMixin, BookAuthorFormSetMixin, CreateView):
+    model = Book
+    fields = ['title', 'summary', 'isbn', 'genre', 'language']
+    permission_required = 'catalog.add_book'
+```
+
+The `extra=2` argument sets how many blank author rows are shown, and on the update page each existing author also gets a "Delete" checkbox.
+
+In **book_form.html**, display the formset inside the same `<form>` element, after the book's own fields.
+You must include `\{{ author_formset.management_form }}`, which adds hidden fields that tell Django how many author rows were submitted:
+
+```django
+  <h2>Authors</h2>
+  \{{ author_formset.management_form }}
+  <table>
+    \{{ author_formset.as_table }}
+  </table>
+```
 
 ## Summary
 
