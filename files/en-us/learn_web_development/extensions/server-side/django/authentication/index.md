@@ -8,7 +8,7 @@ sidebar: learnsidebar
 
 {{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Sessions", "Learn_web_development/Extensions/Server-side/Django/Forms", "Learn_web_development/Extensions/Server-side/Django")}}
 
-In this tutorial, we'll show you how to allow users to log in to your site with their own accounts, and how to control what they can do and see based on whether or not they are logged in and their _permissions_. As part of this demonstration, we'll extend the [LocalLibrary](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) website, adding login and logout pages, and user- and staff-specific pages for viewing books that have been borrowed.
+In this tutorial, we'll show you how to allow users to log in to your site with their own accounts, and how to control what they can do and see based on whether or not they are logged in and their _permissions_. As part of this demonstration, we'll extend the [LocalLibrary](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) website, adding login, logout, and sign-up pages, and user- and staff-specific pages for viewing books that have been borrowed.
 
 <table>
   <tbody>
@@ -34,9 +34,9 @@ Django provides an authentication and authorization ("permission") system, built
 > [!NOTE]
 > According to Django the authentication system aims to be very generic, and so does not provide some features provided in other web authentication systems. Solutions for some common problems are available as third-party packages. For example, {{glossary("throttle", "throttling")}} of login attempts and authentication against third parties (e.g., OAuth).
 
-In this tutorial, we'll show you how to enable user authentication in the [LocalLibrary](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) website, create your own login and logout pages, add permissions to your models, and control access to pages. We'll use the authentication/permissions to display lists of books that have been borrowed for both users and librarians.
+In this tutorial, we'll show you how to enable user authentication in the [LocalLibrary](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) website, add login, logout, and sign-up pages, add permissions to your models, and control access to pages. We'll use the authentication/permissions to display lists of books that have been borrowed for both users and librarians.
 
-The authentication system is very flexible, and you can build up your URLs, forms, views, and templates from scratch if you like, just calling the provided API to log in the user. However, in this article, we're going to use Django's "stock" authentication views and forms for our login and logout pages. We'll still need to create some templates, but that's pretty easy.
+The authentication system is very flexible, and you can build up your URLs, forms, views, and templates from scratch if you like, just calling the provided API to log in the user. However, in this article, we're going to use [django-allauth](https://docs.allauth.org/en/latest/), a third-party package built on Django's authentication system, for our login, logout, and sign-up pages. It comes with its own views, forms, and templates, so we'll only need to create one template, to make its pages look like the rest of our site.
 
 We'll also show you how to create permissions, and check on login status and permissions in both views and templates.
 
@@ -104,7 +104,7 @@ Our superuser is already authenticated and has all permissions, so we'll need to
 >
 > For more information, see [Using a custom user model when starting a project](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project) (Django docs).
 
-Below we'll first create a group and then a user. Even though we don't have any permissions to add for our library members yet, if we need to later, it will be much easier to add them once to the group than individually to each member.
+Below we'll create a group now; we'll create the users themselves later, by signing up for accounts, once we have the pages that let people do that. Even though we don't have any permissions to add for our library members yet, if we need to later, it will be much easier to add them once to the group than individually to each member.
 
 Start the development server and navigate to the admin site in your local web browser (`http://127.0.0.1:8000/admin/`). Login to the site using the credentials for your superuser account. The top level of the Admin site displays all of your models, sorted by "Django application". From the **Authentication and Authorization** section, you can click the **Users** or **Groups** links to see their existing records.
 
@@ -116,89 +116,153 @@ First let's create a new group for our library members.
    ![Admin site - add group](admin_authentication_add_group.png)
 2. We don't need any permissions for the group, so just press **SAVE** (you will be taken to a list of groups).
 
-Now let's create a user:
-
-1. Navigate back to the home page of the admin site
-2. Click the **Add** button next to _Users_ to open the _Add user_ dialog box.
-   ![Admin site - add user pt1](admin_authentication_add_user_prt1.png)
-3. Enter an appropriate **Username** and **Password**/**Password confirmation** for your test user
-4. Press **SAVE** to create the user.
-
-   The admin site will create the new user and immediately take you to a _Change user_ screen where you can change your **username** and add information for the User model's optional fields. These fields include the first name, last name, email address, and the user's status and permissions (only the **Active** flag should be set). Further down you can specify the user's groups and permissions, and see important dates related to the user (e.g., their join date and last login date).
-   ![Admin site - add user pt2](admin_authentication_add_user_prt2.png)
-
-5. In the _Groups_ section, select **Library Member** group from the list of _Available groups_, and then press the **right-arrow** between the boxes to move it into the _Chosen groups_ box.
-   ![Admin site - add user to group](admin_authentication_user_add_group.png)
-6. We don't need to do anything else here, so just select **SAVE** again, to go to the list of users.
-
-That's it! Now you have a "normal library member" account that you will be able to use for testing (once we've implemented the pages to enable them to log in).
-
 > [!NOTE]
-> You should try creating another library member user. Also, create a group for Librarians, and add a user to that too!
+> You can also add users from the admin site (the **Add** button next to _Users_).
+> We won't do that here, because users who sign up for themselves also verify their email address, which (as you'll see below) the site's login page will require.
 
 ## Setting up your authentication views
 
-Django provides almost everything you need to create authentication pages to handle login, log out, and password management "out of the box". This includes a URL mapper, views and forms, but it does not include the templates — we have to create our own!
+Django provides almost everything you need for logging in, logging out, and password management "out of the box": a URL mapper, views, and forms (but not the templates).
+It does not provide a way for new users to sign up ("register") themselves, or to check that an email address someone typed in really belongs to them.
 
-In this section, we show how to integrate the default system into the _LocalLibrary_ website and create the templates.
+Rather than wire up Django's stock views and write a template for each of them, we'll use [django-allauth](https://docs.allauth.org/en/latest/), a widely used third-party package that is built on Django's authentication system.
+It provides login, logout, sign-up, email verification, and password reset pages, and it ships working templates for all of them.
+Later, the same package can also let people log in with an account they already have elsewhere, such as Google.
 
-> [!NOTE]
-> Django does not include a built-in authentication view for initial user registration ("signup").
-> You can create one yourself if needed, but for this tutorial we assume that only librarians are allowed to register users, and that they would do so using the Django admin interface.
-
-> [!NOTE]
-> You don't have to use any of this code, but it is likely that you'll want to because it makes things a lot easier.
-> You'll almost certainly need to change the form handling code if you change your user model, but even so, you would still be able to use the stock view functions.
+Users are still ordinary Django `User` objects, so everything else in this tutorial (`user.is_authenticated`, `login_required`, permissions, and so on) works exactly as it would with Django's own views.
 
 > [!NOTE]
-> In this case, we could reasonably put the authentication pages, including the URLs and templates, inside our catalog application.
+> In this case, we could reasonably put the authentication pages inside our catalog application.
 > However, if we had multiple applications it would be better to separate out this shared login behavior and have it available across the whole site, so that is what we've shown here!
+
+### Installing django-allauth
+
+Add the package to your project:
+
+```bash
+uv add django-allauth
+```
+
+### Settings
+
+Open the project settings (**/locallibrary/locallibrary_config/settings.py**).
+
+Add allauth's two apps to the end of `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = [
+    # …
+    'allauth',
+    'allauth.account',
+]
+```
+
+Add allauth's middleware to the end of `MIDDLEWARE`:
+
+```python
+MIDDLEWARE = [
+    # …
+    'allauth.account.middleware.AccountMiddleware',
+]
+```
+
+allauth's templates need the `request` context processor.
+`startproject` already added it, but check that `TEMPLATES` still has this line:
+
+```python
+            'context_processors': [
+                'django.template.context_processors.request',
+                # …
+```
+
+Then add the following to the bottom of the file:
+
+```python
+# django-allauth
+AUTHENTICATION_BACKENDS = [
+    # Logs users in by username or by email address. It extends Django's
+    # ModelBackend, so the admin site and permissions work as before.
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/'
+```
+
+- **`AUTHENTICATION_BACKENDS`** is the list of ways Django checks a user's credentials. allauth's backend accepts either a username or an email address with the password.
+- **`ACCOUNT_LOGIN_METHODS`** lets people log in with either their username or their email address.
+- **`ACCOUNT_SIGNUP_FIELDS`** is the sign-up form. The `*` marks a field as required, and `password2` is the "type it again" field.
+- **`ACCOUNT_EMAIL_VERIFICATION = 'mandatory'`** means a new account can't log in until its owner clicks the link in an email that allauth sends them. That proves the email address belongs to them, which matters as soon as you send that address anything (like a password reset link).
+- **`LOGIN_REDIRECT_URL`** is where users go after logging in. By default Django expects you to have a profile page at `/accounts/profile/`, which we don't, so we send users to the site's home page instead.
+
+allauth sends its emails (verification links and password reset links) with Django's email settings.
+Sending real email is beyond the scope of this article, but you don't need to add anything to test it: the settings.py that `startproject` created should already have a `MAILERS` setting that uses the console backend, which prints any emails sent to the console (the terminal where `runserver` is running), so you can copy the links from there.
+
+```python
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
+```
+
+> [!NOTE]
+> Don't also add the older `EMAIL_BACKEND` setting that you may see in other tutorials: Django refuses to start if both are defined.
+> For more information, see [Sending email](https://docs.djangoproject.com/en/6.1/topics/email/) (Django docs).
+
+allauth has its own models (for example, the email addresses of each user and whether they have been verified), so create their tables:
+
+```bash
+uv run python manage.py migrate
+```
 
 ### Project URLs
 
 Add the following to the bottom of the project urls.py file (**locallibrary/locallibrary_config/urls.py**) file:
 
 ```python
-# Add Django site authentication urls (for login, logout, password management)
+# Add django-allauth's account urls (for login, logout, sign-up, password management)
 
 urlpatterns += [
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('allauth.urls')),
 ]
 ```
 
 Navigate to the `http://127.0.0.1:8000/accounts/` URL (note the trailing forward slash!).
 Django will show an error that it could not find a mapping for this URL, and list all the URLs that it tried.
-From this you can see the URLs that will work once we have created templates.
+From this you can see the URLs that allauth provides.
 
 > [!NOTE]
-> Adding the `accounts/` path as shown above adds the following URLs, along with names (given in square brackets) that can be used to reverse the URL mappings. You don't have to implement anything else — the above URL mapping automatically maps the below mentioned URLs.
+> Adding the `accounts/` path as shown above adds the following URLs (and a few more), along with names (given in square brackets) that can be used to reverse the URL mappings.
+> Note that allauth's URL names all start with `account_`, unlike the `login` and `logout` names you may see in Django's own documentation.
 >
 > ```python
-> accounts/ login/ [name='login']
-> accounts/ logout/ [name='logout']
-> accounts/ password_change/ [name='password_change']
-> accounts/ password_change/done/ [name='password_change_done']
-> accounts/ password_reset/ [name='password_reset']
-> accounts/ password_reset/done/ [name='password_reset_done']
-> accounts/ reset/<uidb64>/<token>/ [name='password_reset_confirm']
-> accounts/ reset/done/ [name='password_reset_complete']
+> accounts/ login/ [name='account_login']
+> accounts/ logout/ [name='account_logout']
+> accounts/ signup/ [name='account_signup']
+> accounts/ confirm-email/ [name='account_email_verification_sent']
+> accounts/ confirm-email/<key>/ [name='account_confirm_email']
+> accounts/ email/ [name='account_email']
+> accounts/ password/change/ [name='account_change_password']
+> accounts/ password/reset/ [name='account_reset_password']
+> accounts/ password/reset/done/ [name='account_reset_password_done']
+> accounts/ password/reset/key/<uidb36>-<key>/ [name='account_reset_password_from_key']
+> accounts/ password/reset/key/done/ [name='account_reset_password_from_key_done']
 > ```
 
-Now try to navigate to the login URL (`http://127.0.0.1:8000/accounts/login/`). This will fail again, but with an error that tells you that we're missing the required template (**registration/login.html**) on the template search path.
-You'll see the following lines listed in the yellow section at the top:
-
-```python
-Exception Type:    TemplateDoesNotExist
-Exception Value:    registration/login.html
-```
-
-The next step is to create a directory for the templates named "registration" and then add the **login.html** file.
+Now navigate to the login URL (`http://127.0.0.1:8000/accounts/login/`).
+Unlike Django's own views, this already works: allauth's templates are found in the `allauth` app.
+The page is very plain, though, and it doesn't look like the rest of our site: there's no sidebar, and none of our styles.
 
 ### Template directory
 
-The URLs (and implicitly, views) that we just added expect to find their associated templates in a directory **/registration/** somewhere in the templates search path.
+Every allauth page extends a single layout template, **allauth/layouts/base.html**.
+If we provide our own template with that name, all of allauth's pages will use it instead, so we can make them use our site's base template by creating just that one file.
 
-For this site, we'll put our HTML pages in the **templates/registration/** directory. This directory should be in your project root directory, that is, the same directory as the **catalog** and **locallibrary** folders. Please create these folders now.
+For this site, we'll put templates that customize other apps' pages in the **templates/** directory. This directory should be in your project root directory, that is, the same directory as the **catalog** and **locallibrary_config** folders. Create the **templates/allauth/layouts/** folders now.
 
 > [!NOTE]
 > Your folder structure should now look like the below:
@@ -208,7 +272,8 @@ For this site, we'll put our HTML pages in the **templates/registration/** direc
 >   catalog/
 >   locallibrary_config/
 >   templates/
->     registration/
+>     allauth/
+>       layouts/
 > ```
 
 To make the **templates** directory visible to the template loader we need to add it in the template search path.
@@ -232,206 +297,65 @@ Update the `TEMPLATES` section's `'DIRS'` line as shown:
        # …
 ```
 
-### Login template
+Django searches the `DIRS` folders before it searches any app's **templates/** folder, so a template in the project's **templates/** folder always replaces an app's template with the same name.
+(A template in **catalog/templates/** would only win if `catalog` came before the other app in `INSTALLED_APPS`, which is easy to get wrong.)
 
-> [!WARNING]
-> The authentication templates provided in this article are a very basic/slightly modified version of the Django demonstration login templates. You may need to customize them for your own use!
-
-Create a new HTML file called /**locallibrary/templates/registration/login.html** and give it the following contents:
+Create a new HTML file called **/locallibrary/templates/allauth/layouts/base.html** and give it the following contents:
 
 ```django
 {% extends "base_generic.html" %}
 
-{% block content %}
-
-  {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-  {% endif %}
-
-  {% if next %}
-    {% if user.is_authenticated %}
-      <p>Your account doesn't have access to this page. To proceed,
-      please login with an account that has access.</p>
-    {% else %}
-      <p>Please login to see this page.</p>
-    {% endif %}
-  {% endif %}
-
-  <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-      <tr>
-        <td>\{{ form.username.label_tag }}</td>
-        <td>\{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>\{{ form.password.label_tag }}</td>
-        <td>\{{ form.password }}</td>
-      </tr>
-    </table>
-    <input type="submit" value="login">
-    <input type="hidden" name="next" value="\{{ next }}">
-  </form>
-
-  {# Assumes you set up the password_reset view in your URLConf #}
-  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-
-{% endblock %}
+{% block title %}{% block head_title %}{% endblock %} | Local Library{% endblock %}
 ```
 
-This template shares some similarities with the ones we've seen before — it extends our base template and overrides the `content` block. The rest of the code is fairly standard form handling code, which we will discuss in a later tutorial. All you need to know for now is that this will display a form in which you can enter your username and password, and that if you enter invalid values you will be prompted to enter correct values when the page refreshes.
+That's the whole file.
+allauth's templates put each page's heading and form in a block named `content`, and the page's title in a block named `head_title`.
+Our base template already has a `content` block (the main column, next to the sidebar), so the forms land there, and the `title` block now puts allauth's page title in front of the site's name.
 
-Navigate back to the login page (`http://127.0.0.1:8000/accounts/login/`) once you've saved your template, and you should see something like this:
+Navigate back to the login page (`http://127.0.0.1:8000/accounts/login/`) once you've saved your template. It should now have the same sidebar and styles as the rest of the site.
 
-![Library login page v1](library_login.png)
-
-If you log in using valid credentials, you'll be redirected to another page (by default this will be `http://127.0.0.1:8000/accounts/profile/`). The problem is that, by default, Django expects that upon logging in you will want to be taken to a profile page, which may or may not be the case. As you haven't defined this page yet, you'll get another error!
-
-Open the project settings (**/locallibrary/locallibrary_config/settings.py**) and add the text below to the bottom. Now when you log in you should be redirected to the site homepage by default.
-
-```python
-# Redirect to home URL after login (Default redirects to /accounts/profile/)
-LOGIN_REDIRECT_URL = '/'
-```
-
-### Logout template
-
-If you navigate to the logout URL (`http://127.0.0.1:8000/accounts/logout/`) then you'll get an error because Django 5 does not allow logout using `GET`, only `POST`.
-We'll add a form you can use to logout in a minute, but first we'll create the page that users are taken to after logging out.
-
-Create and open **/locallibrary/templates/registration/logged_out.html**. Copy in the text below:
-
-```django
-{% extends "base_generic.html" %}
-
-{% block content %}
-  <p>Logged out!</p>
-  <a href="{% url 'login'%}">Click here to login again.</a>
-{% endblock %}
-```
-
-This template is very simple. It just displays a message informing you that you have been logged out, and provides a link that you can press to go back to the login screen. The screen renders like this (after logout):
-
-![Library logout page v1](library_logout.png)
-
-### Password reset templates
-
-The default password reset system uses email to send the user a reset link. You need to create forms to get the user's email address, send the email, allow them to enter a new password, and to note when the whole process is complete.
-
-The following templates can be used as a starting point.
-
-#### Password reset form
-
-This is the form used to get the user's email address (for sending the password reset email). Create **/locallibrary/templates/registration/password_reset_form.html**, and give it the following contents:
-
-```django
-{% extends "base_generic.html" %}
-
-{% block content %}
-  <form action="" method="post">
-  {% csrf_token %}
-  {% if form.email.errors %}
-    \{{ form.email.errors }}
-  {% endif %}
-      <p>\{{ form.email }}</p>
-    <input type="submit" class="btn btn-default btn-lg" value="Reset password">
-  </form>
-{% endblock %}
-```
-
-#### Password reset done
-
-This form is displayed after your email address has been collected. Create **/locallibrary/templates/registration/password_reset_done.html**, and give it the following contents:
-
-```django
-{% extends "base_generic.html" %}
-
-{% block content %}
-  <p>We've emailed you instructions for setting your password. If they haven't arrived in a few minutes, check your spam folder.</p>
-{% endblock %}
-```
-
-#### Password reset email
-
-This template provides the text of the HTML email containing the reset link that we will send to users. Create **/locallibrary/templates/registration/password_reset_email.html**, and give it the following contents:
-
-```django
-Someone asked for password reset for email \{{ email }}. Follow the link below:
-\{{ protocol }}://\{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
-```
-
-#### Password reset confirm
-
-This page is where you enter your new password after clicking the link in the password reset email. Create **/locallibrary/templates/registration/password_reset_confirm.html**, and give it the following contents:
-
-```django
-{% extends "base_generic.html" %}
-
-{% block content %}
-    {% if validlink %}
-        <p>Please enter (and confirm) your new password.</p>
-        <form action="" method="post">
-        {% csrf_token %}
-            <table>
-                <tr>
-                    <td>\{{ form.new_password1.errors }}
-                        <label for="id_new_password1">New password:</label></td>
-                    <td>\{{ form.new_password1 }}</td>
-                </tr>
-                <tr>
-                    <td>\{{ form.new_password2.errors }}
-                        <label for="id_new_password2">Confirm password:</label></td>
-                    <td>\{{ form.new_password2 }}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><input type="submit" value="Change my password"></td>
-                </tr>
-            </table>
-        </form>
-    {% else %}
-        <h1>Password reset failed</h1>
-        <p>The password reset link was invalid, possibly because it has already been used. Please request a new password reset.</p>
-    {% endif %}
-{% endblock %}
-```
-
-#### Password reset complete
-
-This is the last password-reset template, which is displayed to notify you when the password reset has succeeded. Create **/locallibrary/templates/registration/password_reset_complete.html**, and give it the following contents:
-
-```django
-{% extends "base_generic.html" %}
-
-{% block content %}
-  <h1>The password has been changed!</h1>
-  <p><a href="{% url 'login' %}">log in again?</a></p>
-{% endblock %}
-```
+> [!NOTE]
+> You can override any of allauth's other templates the same way, to change how each form or email looks.
+> See [Templates](https://docs.allauth.org/en/latest/common/templates.html) in the allauth documentation.
+> Be warned, though: how the login page looks is about the least interesting thing in a web application, so leave that kind of polishing until everything else works.
 
 ### Testing the new authentication pages
 
-Now that you've added the URL configuration and created all these templates, the authentication pages (other than logout) should now just work!
+Now that you've added the settings, the URL configuration, and the layout template, the authentication pages should just work!
+Start the development server and try them out:
 
-You can test the new authentication pages by first attempting to log in to your superuser account using the URL `http://127.0.0.1:8000/accounts/login/`.
-You'll be able to test the password reset functionality from the link in the login page. **Be aware that Django will only send reset emails to addresses (users) that are already stored in its database!**
+1. Open the sign-up page (`http://127.0.0.1:8000/accounts/signup/`) and create an account with an email address, a username, and a password.
+   allauth takes you to a page asking you to verify your email address.
+2. Look in the terminal where `runserver` is running.
+   The verification email is printed there, including a link that looks like `http://127.0.0.1:8000/accounts/confirm-email/…/`.
+   Open the link and press **Confirm**.
+3. Log in at `http://127.0.0.1:8000/accounts/login/`, first with the username and then (after logging out, below) with the email address.
+   Either way, you should be redirected to the site's home page.
+   If you try to log in to an account whose email address hasn't been verified yet, allauth sends you back to the "verify your email address" page instead.
+4. Test the password reset from the "Forgot your password?" link on the login page.
+   Again, the email with the reset link is printed in the terminal.
+   **allauth only sends reset links to email addresses that belong to existing users!**
+5. To log out, open `http://127.0.0.1:8000/accounts/logout/` and press **Sign Out**.
+   Logging out has to be a `POST` request, so this page is a form with a button. We'll add a logout button to every page's sidebar in a moment.
 
-Note that you won't be able to test account logout yet, because logout requests must be sent as a `POST` rather than a `GET` request.
+Users who were created before allauth was installed, like the superuser you made with `createsuperuser`, don't have a verified email address yet.
+They can still log in to the admin site, but the site's login page will ask them to verify their email address first.
+To fix that, log in to the admin site (`http://127.0.0.1:8000/admin/`) and, in the new **Accounts** section, add an **Email address** for the user, with **Verified** and **Primary** both checked.
+
+#### Library members
+
+Now let's make the account you just signed up with a library member:
+
+1. Log in to the admin site with your superuser account.
+2. Under **Authentication and Authorization**, click **Users**, then click the username you signed up with.
+3. In the _Groups_ section, select **Library Members** group from the list of _Available groups_, and then press the **right-arrow** between the boxes to move it into the _Chosen groups_ box.
+   ![Admin site - add user to group](admin_authentication_user_add_group.png)
+4. We don't need to do anything else here, so just select **SAVE** to go to the list of users.
+
+That's it! Now you have a "normal library member" account that you can use for testing.
 
 > [!NOTE]
-> The password reset system requires that your website supports email. Sending real email is beyond the scope of this article, but you don't need to add anything to test it: the settings.py that `startproject` created should already have a `MAILERS` setting that uses the console backend, which logs any emails sent to the console (so you can copy the password reset link from the console).
->
-> ```python
-> MAILERS = {
->     'default': {
->         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
->     },
-> }
-> ```
->
-> Don't also add the older `EMAIL_BACKEND` setting: Django refuses to start if both are defined.
->
-> For more information, see [Sending email](https://docs.djangoproject.com/en/6.1/topics/email/) (Django docs).
+> You should try signing up another library member user (use a different email address). Also, create a group for Librarians, and add a user to that too!
 
 ## Testing against authenticated users
 
@@ -441,7 +365,7 @@ This section looks at what we can do to selectively control content the user see
 
 You can get information about the currently logged in user in templates with the `\{{ user }}` template variable (this is added to the template context by default when you set up the project as we did in our skeleton).
 
-Typically you will first test against the `\{{ user.is_authenticated }}` template variable to determine whether the user is eligible to see specific content. To demonstrate this, next we'll update our sidebar to display a "Login" link if the user is logged out, and a "Logout" link if they are logged in.
+Typically you will first test against the `\{{ user.is_authenticated }}` template variable to determine whether the user is eligible to see specific content. To demonstrate this, next we'll update our sidebar to display "Login" and "Sign up" links if the user is logged out, and a "Logout" link if they are logged in.
 
 Open the base template (**/locallibrary/catalog/templates/base_generic.html**) and copy the following text into the `sidebar` block, immediately before the `endblock` template tag.
 
@@ -451,13 +375,14 @@ Open the base template (**/locallibrary/catalog/templates/base_generic.html**) a
    {% if user.is_authenticated %}
      <li>User: \{{ user.get_username }}</li>
      <li>
-       <form id="logout-form" method="post" action="{% url 'logout' %}">
+       <form id="logout-form" method="post" action="{% url 'account_logout' %}">
          {% csrf_token %}
          <button type="submit" class="btn btn-link">Logout</button>
        </form>
      </li>
    {% else %}
-     <li><a href="{% url 'login' %}?next=\{{ request.path }}">Login</a></li>
+     <li><a href="{% url 'account_login' %}?next=\{{ request.path }}">Login</a></li>
+     <li><a href="{% url 'account_signup' %}">Sign up</a></li>
    {% endif %}
     …
   </ul>
@@ -465,9 +390,11 @@ Open the base template (**/locallibrary/catalog/templates/base_generic.html**) a
 
 As you can see, we use `if` / `else` / `endif` template tags to conditionally display text based on whether `\{{ user.is_authenticated }}` is true. If the user is authenticated then we know that we have a valid user, so we call `\{{ user.get_username }}` to display their name.
 
-We create the login link URL using the `url` template tag and the name of the `login` URL configuration. Note also how we have appended `?next=\{{ request.path }}` to the end of the URL. What this does is add a URL parameter `next` containing the address (URL) of the _current_ page, to the end of the linked URL. After the user has successfully logged in, the view will use this `next` value to redirect the user back to the page where they first clicked the login link.
+We create the login link URL using the `url` template tag and the name of allauth's `account_login` URL configuration. Note also how we have appended `?next=\{{ request.path }}` to the end of the URL. What this does is add a URL parameter `next` containing the address (URL) of the _current_ page, to the end of the linked URL. After the user has successfully logged in, the view will use this `next` value to redirect the user back to the page where they first clicked the login link.
 
-The logout template code is different, because from Django 5 to logout you must `POST` to the `admin:logout` URL, using a form with a button.
+The logout template code is different, because to log out you must `POST` to the `account_logout` URL, using a form with a button.
+(A `GET` request only shows allauth's "Are you sure you want to sign out?" page.)
+After logging the user out, allauth redirects them to the site's home page.
 By default this would render as a button, but you can style the button to display as a link.
 For this example we're using _Bootstrap_, so we make the button look like a link by applying `class="btn btn-link"`.
 You also need to append the following styles to **/locallibrary/catalog/static/css/styles.css** in order to correctly position the logout link next to all the other sidebar links:
@@ -483,7 +410,7 @@ You also need to append the following styles to **/locallibrary/catalog/static/c
 ```
 
 Try it out by clicking the Login/Logout links in the sidebar.
-You should be taken to the logout/login pages that you defined in the [Template directory](#template_directory) above.
+Log in from a page other than the home page (for example, the list of all books) and check that you are brought back to that page afterwards.
 
 ### Testing in views
 
@@ -694,13 +621,14 @@ Open the base template (**/locallibrary/catalog/templates/base_generic.html**) a
    <li><a href="{% url 'my-borrowed' %}">My Borrowed</a></li>
 
    <li>
-     <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+     <form id="logout-form" method="post" action="{% url 'account_logout' %}">
        {% csrf_token %}
        <button type="submit" class="btn btn-link">Logout</button>
      </form>
    </li>
    {% else %}
-   <li><a href="{% url 'login' %}?next=\{{ request.path }}">Login</a></li>
+   <li><a href="{% url 'account_login' %}?next=\{{ request.path }}">Login</a></li>
+   <li><a href="{% url 'account_signup' %}">Sign up</a></li>
    {% endif %}
  </ul>
 ```
@@ -819,6 +747,7 @@ In our next article, we'll look at how you can use Django forms to collect user 
 
 - [User authentication in Django](https://docs.djangoproject.com/en/6.1/topics/auth/) (Django docs)
 - [Using the (default) Django authentication system](https://docs.djangoproject.com/en/6.1/topics/auth/default/) (Django docs)
+- [django-allauth: Quickstart](https://docs.allauth.org/en/latest/installation/quickstart.html) and [Account configuration](https://docs.allauth.org/en/latest/account/configuration.html) (allauth docs)
 - [Introduction to class-based views > Decorating class-based views](https://docs.djangoproject.com/en/6.1/topics/class-based-views/intro/#decorating-class-based-views) (Django docs)
 
 {{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Sessions", "Learn_web_development/Extensions/Server-side/Django/Forms", "Learn_web_development/Extensions/Server-side/Django")}}
