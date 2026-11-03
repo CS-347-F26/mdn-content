@@ -313,6 +313,7 @@ sidebar:
           - /Learn_web_development/Extensions/Server-side/Django/Sessions
           - /Learn_web_development/Extensions/Server-side/Django/Authentication
           - /Learn_web_development/Extensions/Server-side/Django/Forms
+          - /Learn_web_development/Extensions/Server-side/Django/Media_files
           - /Learn_web_development/Extensions/Server-side/Django/Testing
           - /Learn_web_development/Extensions/Server-side/Django/Deployment
           - /Learn_web_development/Extensions/Server-side/Django/web_application_security

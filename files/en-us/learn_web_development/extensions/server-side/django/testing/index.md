@@ -6,7 +6,7 @@ page-type: learn-module-chapter
 sidebar: learnsidebar
 ---
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Forms", "Learn_web_development/Extensions/Server-side/Django/Deployment", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Media_files", "Learn_web_development/Extensions/Server-side/Django/Deployment", "Learn_web_development/Extensions/Server-side/Django")}}
 
 As websites grow they become harder to test manually. Not only is there more to test, but, as interactions between components become more complex, a small change in one area can impact other areas, so more changes will be required to ensure everything keeps working and errors are not introduced as more changes are made. One way to mitigate these problems is to write automated tests, which can easily and reliably be run every time you make a change. This tutorial shows how to automate _unit testing_ of your website using Django's test framework.
 
@@ -15,7 +15,7 @@ As websites grow they become harder to test manually. Not only is there more to 
     <tr>
       <th scope="row">Prerequisites:</th>
       <td>
-        Complete all previous tutorial topics, including <a href="/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Forms">Django Tutorial Part 9: Working with forms</a>.
+        Complete all previous tutorial topics, including <a href="/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Media_files">Django Tutorial Part 9.5: Media files and user uploads</a>.
       </td>
     </tr>
     <tr>
@@ -948,7 +948,7 @@ There are a lot more models and views we can test. As a challenge, try to create
 ```python
 class AuthorCreate(PermissionRequiredMixin, CreateView):
     model = Author
-    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
+    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death', 'photo']
     initial = {'date_of_death': '11/11/2023'}
     permission_required = 'catalog.add_author'
 ```
@@ -994,4 +994,4 @@ The next and final tutorial shows how you can deploy your wonderful (and fully t
 - [A Guide to Testing in Django](https://toastdriven.com/blog/2011/apr/09/guide-to-testing-in-django/) (Toast Driven Blog, 2011)
 - [Workshop: Test-Driven Web Development with Django](https://test-driven-django-development.readthedocs.io/en/latest/index.html) (San Diego Python, 2014)
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Forms", "Learn_web_development/Extensions/Server-side/Django/Deployment", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Media_files", "Learn_web_development/Extensions/Server-side/Django/Deployment", "Learn_web_development/Extensions/Server-side/Django")}}

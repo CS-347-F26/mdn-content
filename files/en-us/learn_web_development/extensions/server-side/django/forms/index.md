@@ -6,7 +6,7 @@ page-type: learn-module-chapter
 sidebar: learnsidebar
 ---
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Authentication", "Learn_web_development/Extensions/Server-side/Django/Testing", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Authentication", "Learn_web_development/Extensions/Server-side/Django/Media_files", "Learn_web_development/Extensions/Server-side/Django")}}
 
 In this tutorial, we'll show you how to work with HTML Forms in Django, and, in particular, the easiest way to write forms to create, update, and delete model instances. As part of this demonstration, we'll extend the [LocalLibrary](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Tutorial_local_library_website) website so that librarians can renew books, and create, update, and delete authors using our own forms (rather than using the admin application).
 
@@ -56,8 +56,8 @@ The form is defined in HTML as a collection of elements inside `<form>…</form>
     id="team_name"
     type="text"
     name="name_field"
-    value="Default name for team.">
-  <input type="submit" value="OK">
+    value="Default name for team." />
+  <input type="submit" value="OK" />
 </form>
 ```
 
@@ -442,8 +442,8 @@ Perhaps unsurprisingly, when used as shown this provides the default rendering o
       name="renewal_date"
       type="text"
       value="2023-11-08"
-      required>
-    <br>
+      required />
+    <br />
     <span class="helptext">
       Enter date between now and 4 weeks (default 3 weeks).
     </span>
@@ -468,8 +468,8 @@ If you were to enter an invalid date, you'd additionally get a list of the error
       name="renewal_date"
       type="text"
       value="2023-11-08"
-      required>
-    <br>
+      required />
+    <br />
     <span class="helptext">
       Enter date between now and 4 weeks (default 3 weeks).
     </span>
@@ -902,4 +902,4 @@ There is a lot more that can be done with forms (check out our [See also](#see_a
 - [Creating forms from models](https://docs.djangoproject.com/en/6.1/topics/forms/modelforms/) (Django docs)
 - [Generic editing views](https://docs.djangoproject.com/en/6.1/ref/class-based-views/generic-editing/) (Django docs)
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Authentication", "Learn_web_development/Extensions/Server-side/Django/Testing", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Authentication", "Learn_web_development/Extensions/Server-side/Django/Media_files", "Learn_web_development/Extensions/Server-side/Django")}}
