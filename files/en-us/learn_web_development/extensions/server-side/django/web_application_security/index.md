@@ -6,7 +6,7 @@ page-type: learn-module-chapter
 sidebar: learnsidebar
 ---
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Deployment", "Learn_web_development/Extensions/Server-side/Django/django_assessment_blog", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Email", "Learn_web_development/Extensions/Server-side/Django/django_assessment_blog", "Learn_web_development/Extensions/Server-side/Django")}}
 
 Protecting user data is an essential part of any website design. We previously explained some of the more common security threats in the article [Web security](/en-US/docs/Web/Security) — this article provides a practical demonstration of how Django's in-built protections handle such threats.
 
@@ -98,7 +98,7 @@ They would then send the file to all the Librarians and suggest that they open t
         name="first_name"
         type="text"
         value="Mad"
-        required>
+        required />
       <label for="id_last_name">Last name:</label>
       <input
         id="id_last_name"
@@ -106,16 +106,16 @@ They would then send the file to all the Librarians and suggest that they open t
         name="last_name"
         type="text"
         value="Man"
-        required>
+        required />
       <label for="id_date_of_birth">Date of birth:</label>
-      <input id="id_date_of_birth" name="date_of_birth" type="text">
+      <input id="id_date_of_birth" name="date_of_birth" type="text" />
       <label for="id_date_of_death">Died:</label>
       <input
         id="id_date_of_death"
         name="date_of_death"
         type="text"
-        value="12/10/2016">
-      <input type="submit" value="Submit">
+        value="12/10/2016" />
+      <input type="submit" value="Submit" />
     </form>
   </body>
 </html>
@@ -129,7 +129,7 @@ The way the protection is enabled is that you include the `{% csrf_token %}` tem
 <input
   type="hidden"
   name="csrfmiddlewaretoken"
-  value="0QRWHnYVg776y2l66mcvZqp8alrv4lb8S8lZ4ZJUWGZFA5VHrVfL2mpH29YZ39PW">
+  value="0QRWHnYVg776y2l66mcvZqp8alrv4lb8S8lZ4ZJUWGZFA5VHrVfL2mpH29YZ39PW" />
 ```
 
 Django generates a user/browser specific key and will reject forms that do not contain the field, or that contain an incorrect field value for the user/browser.
@@ -171,4 +171,4 @@ The next and final step in this module about Django is to complete the [assessme
 - [Practical security implementation guides](/en-US/docs/Web/Security/Practical_implementation_guides)
 - [Security in Django](https://docs.djangoproject.com/en/6.1/topics/security/) (Django docs)
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Deployment", "Learn_web_development/Extensions/Server-side/Django/django_assessment_blog", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Email", "Learn_web_development/Extensions/Server-side/Django/django_assessment_blog", "Learn_web_development/Extensions/Server-side/Django")}}

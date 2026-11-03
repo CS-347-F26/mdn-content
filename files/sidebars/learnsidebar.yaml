@@ -316,6 +316,7 @@ sidebar:
           - /Learn_web_development/Extensions/Server-side/Django/Media_files
           - /Learn_web_development/Extensions/Server-side/Django/Testing
           - /Learn_web_development/Extensions/Server-side/Django/Deployment
+          - /Learn_web_development/Extensions/Server-side/Django/Email
           - /Learn_web_development/Extensions/Server-side/Django/web_application_security
           - /Learn_web_development/Extensions/Server-side/Django/django_assessment_blog
       - link: /Learn_web_development/Extensions/Server-side/Express_Nodejs

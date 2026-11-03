@@ -6,7 +6,7 @@ page-type: learn-module-chapter
 sidebar: learnsidebar
 ---
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Testing", "Learn_web_development/Extensions/Server-side/Django/web_application_security", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Testing", "Learn_web_development/Extensions/Server-side/Django/Email", "Learn_web_development/Extensions/Server-side/Django")}}
 
 You've already created and tested an example website using Django, so now it's time to install it on a web server so that it can be accessed by anyone over the public internet.
 This page shows you how to deploy the _LocalLibrary_ website to a virtual machine on Google Cloud, using Docker Compose, Postgres, and the Caddy web server.
@@ -634,4 +634,4 @@ The next step is to read our last few articles, and then complete the assessment
 - [Compute Engine documentation](https://cloud.google.com/compute/docs) (Google Cloud docs)
 - [WhiteNoise](https://whitenoise.readthedocs.io/) and [django-environ](https://django-environ.readthedocs.io/) (package docs)
 
-{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Testing", "Learn_web_development/Extensions/Server-side/Django/web_application_security", "Learn_web_development/Extensions/Server-side/Django")}}
+{{PreviousMenuNext("Learn_web_development/Extensions/Server-side/Django/Testing", "Learn_web_development/Extensions/Server-side/Django/Email", "Learn_web_development/Extensions/Server-side/Django")}}
