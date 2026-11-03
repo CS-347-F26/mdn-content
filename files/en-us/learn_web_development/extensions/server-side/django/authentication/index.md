@@ -85,24 +85,9 @@ Our superuser is already authenticated and has all permissions, so we'll need to
 > user.save()
 > ```
 >
-> Note however that it is highly recommended to set up a _custom user model_ when starting a project, as you'll be able to easily customize it in the future if the need arises.
-> If using a custom user model the code to create the same user would look like this:
->
-> ```python
-> # Get current user model from settings
-> from django.contrib.auth import get_user_model
-> User = get_user_model()
->
-> # Create user from model and save to the database
-> user = User.objects.create_user('myusername', 'myemail@crazymail.com', 'mypassword')
->
-> # Update fields and then save again
-> user.first_name = 'Tyrone'
-> user.last_name = 'Citizen'
-> user.save()
-> ```
->
-> For more information, see [Using a custom user model when starting a project](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project) (Django docs).
+> When you start a **new** project, Django [recommends setting up a _custom user model_](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project) before you run `migrate` for the first time, even if the default `User` model has every field you need, so that you can change it later if you need to.
+> _LocalLibrary_ already uses the default `User` model, though, and switching to a custom user model in a project that already has a database is difficult.
+> So [later in this article](#storing_extra_information_about_users) we'll [extend the existing `User` model](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#extending-the-existing-user-model) instead, with a separate model of our own that holds our custom fields, linked to `User` with a `OneToOneField`.
 
 Below we'll create a group now; we'll create the users themselves later, by signing up for accounts, once we have the pages that let people do that. Even though we don't have any permissions to add for our library members yet, if we need to later, it will be much easier to add them once to the group than individually to each member.
 
@@ -463,14 +448,14 @@ from django.conf import settings
 ```
 
 Next, add the `borrower` field to the `BookInstance` model, setting the user model for the key as the value of the setting `AUTH_USER_MODEL`.
-Since we have not overridden the setting with a [custom user model](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/) this maps to the default `User` model from `django.contrib.auth.models`.
+We haven't replaced the user model, so this maps to the default `User` model from `django.contrib.auth.models`.
 
 ```python
 borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 ```
 
 > [!NOTE]
-> Importing the model in this way reduces the work required if you later discover that you need a custom user model.
+> Referring to the user model through `settings.AUTH_USER_MODEL` is the convention used by Django itself and by reusable apps (such as allauth), so that they keep working in projects that replace `User`.
 > This tutorial uses the default model, so you could instead import the `User` model directly with the following lines:
 >
 > ```python
@@ -639,6 +624,224 @@ When any user is logged in, they'll see the _My Borrowed_ link in the sidebar, a
 
 ![Library - borrowed books by user](library_borrowed_by_user.png)
 
+## Storing extra information about users
+
+Django's `User` model stores the information that every site needs to log someone in: a username, a password, an email address, a first and last name, and a few flags such as `is_staff`.
+Most sites need to store more than that about their users.
+A library, for example, might want each member's library card number, and a limit on how many books they can borrow at once.
+
+There are two ways to do this:
+
+- **A custom user model**, which replaces Django's `User` with a class of your own (usually a subclass of `AbstractUser`), to which you can add fields.
+  This is what Django [recommends for a new project](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project), but it has to be set up _before_ you run `migrate` for the first time.
+  Switching to a custom user model in a project that already has users in its database (like ours) is complicated and easy to get wrong.
+- **A profile model**, which [extends the existing user model](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#extending-the-existing-user-model): an ordinary model of your own that holds the custom fields, linked to the user model with a `OneToOneField`.
+  You can add one at any time, and Django's `User` model, the admin site's user pages, `createsuperuser`, and third-party apps like allauth all keep working exactly as before.
+
+These aren't either/or.
+Even in a project that starts with a custom user model, the Django docs suggest keeping app-specific information about users in a separate model like this, so that each app can store what it needs without every app having to change the user model.
+
+> [!NOTE]
+> **For your own new projects** (such as your final project), start with a custom user model.
+> Before you run `migrate` for the first time, create an app for it (for example, `accounts`), and add this to its **models.py**:
+>
+> ```python
+> from django.contrib.auth.models import AbstractUser
+>
+> class User(AbstractUser):
+>     pass
+> ```
+>
+> Then set `AUTH_USER_MODEL = 'accounts.User'` in **settings.py**, and register the model in the app's **admin.py** with `admin.site.register(User, UserAdmin)` (importing `UserAdmin` from `django.contrib.auth.admin`).
+> It behaves exactly like the default `User` for now, but you'll be able to add fields to it later with an ordinary migration.
+> In code, always refer to it as `settings.AUTH_USER_MODEL` (in models) or `get_user_model()` (everywhere else), never by importing `User` directly.
+
+_LocalLibrary_ already uses the default `User` model, so we'll extend it with a `UserProfile` model.
+
+### The UserProfile model
+
+A `OneToOneField` is a relationship in which each record on one side is linked to at most one record on the other side.
+It works just like a `ForeignKey` (in the database, it _is_ a foreign key, with a constraint that each value can only appear once), except that following the relationship backwards gives you a single object instead of a list.
+So each user has exactly one profile, and each profile belongs to exactly one user.
+
+Open **catalog/models.py**, and add the following model to the end of the file (you already imported `settings` for the `borrower` field):
+
+```python
+class UserProfile(models.Model):
+    """Library-specific information about a user, in addition to Django's User model."""
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile',
+    )
+    library_card_number = models.CharField(
+        max_length=20, blank=True, help_text='The number printed on the member\'s library card')
+    max_loans = models.PositiveSmallIntegerField(
+        default=5, help_text='How many books this member may borrow at once')
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return f'Profile for {self.user}'
+```
+
+- **`user`** is the link to the `User` model.
+  As with `borrower`, we refer to it as `settings.AUTH_USER_MODEL` rather than importing `User` directly.
+  `on_delete=models.CASCADE` means that deleting a user also deletes their profile, which is no use without them.
+- **`related_name='profile'`** sets the name for following the relationship backwards, from a user to their profile: `user.profile`.
+  Without it, Django would name it after the model, as `user.userprofile`.
+- **`library_card_number`** and **`max_loans`** are the extra information we want to store.
+  `library_card_number` is `blank=True` because new members who sign up on the website don't have a card yet.
+  `max_loans` has a default, so that every new profile gets a sensible limit without anyone having to set it.
+
+Now you can get from a user to their information in either direction:
+
+```python
+request.user.profile.library_card_number   # From a user to their profile
+some_profile.user.email                    # From a profile to its user
+```
+
+Make and apply the migrations:
+
+```bash
+uv run python manage.py makemigrations
+uv run python manage.py migrate
+```
+
+### Creating a profile for every user
+
+A profile doesn't appear by itself when someone signs up: something has to create it.
+If a user doesn't have one, `user.profile` raises a `RelatedObjectDoesNotExist` exception, so we want to make sure that every user always has a profile.
+
+We'll use a Django [_signal_](https://docs.djangoproject.com/en/6.1/topics/signals/) to do this.
+Signals let one part of a project run code when something happens in another part, without either part having to know about the other.
+Django sends the `post_save` signal every time a model instance is saved, so we can listen for it and create a profile whenever a new `User` is saved, whether they were created by allauth's sign-up page, the admin site, `createsuperuser`, or your tests.
+
+Create the file **catalog/signals.py** and give it the following contents:
+
+```python
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from .models import UserProfile
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Create a UserProfile whenever a new user is created."""
+    if created:
+        UserProfile.objects.create(user=instance)
+```
+
+The `@receiver` decorator connects the function to the `post_save` signal of the user model.
+The `created` argument is `True` only the first time a user is saved, so we create the profile then, and not every time the user logs in or changes their password.
+
+The decorator only connects the function when the module is imported, and nothing imports **catalog/signals.py** yet.
+The usual place to import it is the `ready()` method of the app's configuration class, which Django calls once when it starts.
+Open **catalog/apps.py** and add a `ready()` method to the `CatalogConfig` class:
+
+```python
+from django.apps import AppConfig
+
+
+class CatalogConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'catalog'
+
+    def ready(self):
+        # Connect the signal handlers in signals.py.
+        from . import signals  # noqa: F401
+```
+
+> [!NOTE]
+> Leave `default_auto_field` as it is in your file, if it's different: only the `ready()` method is new.
+
+The signal only fires for users created from now on, so your existing users (including your superuser and the library member you signed up with earlier) don't have profiles yet.
+Create them in the Django shell:
+
+```bash
+uv run python manage.py shell
+```
+
+```python
+>>> from django.contrib.auth import get_user_model
+>>> from catalog.models import UserProfile
+>>> for user in get_user_model().objects.all():
+...     UserProfile.objects.get_or_create(user=user)
+...
+>>> exit()
+```
+
+`get_or_create()` only creates a profile for users who don't have one, so it's safe to run this more than once.
+
+### Editing profiles in the admin site
+
+Librarians will want to see and change a member's card number and loan limit on the same admin page as the rest of the member's details.
+We can do that by adding the profile to the user's admin page as an _inline_, just as we added book instances to the book admin page in [Django Tutorial Part 4: Django admin site](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Admin_site).
+
+The `User` admin page belongs to `django.contrib.auth`, so we _unregister_ its admin class and register a subclass of it that adds our inline.
+Add the following to the end of **catalog/admin.py**:
+
+```python
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+
+from .models import UserProfile
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+
+
+admin.site.unregister(get_user_model())
+
+
+@admin.register(get_user_model())
+class UserWithProfileAdmin(UserAdmin):
+    inlines = [UserProfileInline]
+```
+
+`can_delete = False` hides the "Delete" checkbox for the profile, because a user should always have one.
+
+Open a user in the admin site (`http://127.0.0.1:8000/admin/auth/user/`): the **User profile** section at the bottom of the page shows the new fields.
+Give your library member a card number and save.
+
+### Using the profile in templates and views
+
+Because `user` is available in every template, so is `user.profile`.
+Open the base template (**/locallibrary/catalog/templates/base_generic.html**) and show the card number under the username in the sidebar:
+
+```django
+   {% if user.is_authenticated %}
+   <li>User: \{{ user.get_username }}</li>
+   {% if user.profile.library_card_number %}
+     <li>Card: \{{ user.profile.library_card_number }}</li>
+   {% endif %}
+   …
+```
+
+Next, let's show members how many more books they can borrow.
+Open **/catalog/templates/catalog/bookinstance_list_borrowed_user.html**, and add the following paragraph directly below the `<h1>` heading:
+
+```django
+    <p>You have borrowed \{{ paginator.count }} of \{{ user.profile.max_loans }} books.</p>
+```
+
+Our `LoanedBooksByUserListView` sets `paginate_by`, so its template gets a `paginator` variable, and `paginator.count` is the total number of books on loan to the user (not just the number on the current page).
+
+In a view, you get to the profile in the same way, from `request.user`.
+For example, a view that lets a member borrow a book could check their limit like this:
+
+```python
+loans = BookInstance.objects.filter(borrower=request.user, status__exact='o').count()
+if loans >= request.user.profile.max_loans:
+    # Don't let them borrow any more books.
+```
+
+Log in as your library member and check the sidebar and the _My Borrowed_ page.
+Then sign up a new user, and check in the admin site that they got a profile automatically.
+
 ## Permissions
 
 Permissions are associated with models and define the operations that can be performed on a model instance by a user who has the permission. By default, Django automatically gives _add_, _change_, and _delete_ permissions to all models, which allow users with the permissions to perform the associated actions via the admin site. You can define your own permissions to models and grant them to specific users. You can also change the permissions associated with different instances of the same model.
@@ -739,7 +942,7 @@ When you are finished, your page should look something like the screenshot below
 
 ## Summary
 
-Excellent work — you've now created a website where library members can log in and view their own content, and where librarians (with the correct permission) can view all loaned books and their borrowers. At the moment we're still just viewing content, but the same principles and techniques are used when you want to start modifying and adding data.
+Excellent work — you've now created a website where library members can log in and view their own content, where each member has a profile that stores library-specific information about them, and where librarians (with the correct permission) can view all loaned books and their borrowers. At the moment we're still just viewing content, but the same principles and techniques are used when you want to start modifying and adding data.
 
 In our next article, we'll look at how you can use Django forms to collect user input, and then start modifying some of our stored data.
 
@@ -747,6 +950,7 @@ In our next article, we'll look at how you can use Django forms to collect user 
 
 - [User authentication in Django](https://docs.djangoproject.com/en/6.1/topics/auth/) (Django docs)
 - [Using the (default) Django authentication system](https://docs.djangoproject.com/en/6.1/topics/auth/default/) (Django docs)
+- [Extending the existing User model](https://docs.djangoproject.com/en/6.1/topics/auth/customizing/#extending-the-existing-user-model) (Django docs)
 - [django-allauth: Quickstart](https://docs.allauth.org/en/latest/installation/quickstart.html) and [Account configuration](https://docs.allauth.org/en/latest/account/configuration.html) (allauth docs)
 - [Introduction to class-based views > Decorating class-based views](https://docs.djangoproject.com/en/6.1/topics/class-based-views/intro/#decorating-class-based-views) (Django docs)
 
