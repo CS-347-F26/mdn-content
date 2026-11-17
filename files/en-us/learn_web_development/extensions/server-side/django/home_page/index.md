@@ -349,10 +349,55 @@ You can add an image into the page in a similar way, for example:
 > [!NOTE]
 > Despite extending `base_generic.html`, `index.html` has not successfully loaded the `static` tag. [Each template must load the tags it needs](https://docs.djangoproject.com/en/dev/ref/templates/language/#custom-libraries-and-template-inheritance), even if the template is a child (or other descendant) of one that already loaded the tag, and even if the template is a parent (or other ancestor) of another that already loaded the tag.
 
-> [!NOTE]
-> The samples above specify where the files are located, but Django does not serve them by default. We configured the development web server to serve files by modifying the global URL mapper (**/locallibrary/locallibrary_config/urls.py**) when we [created the website skeleton](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website), but still need to enable file serving in production. We'll look at this later.
+#### How Django serves static files
 
-For more information on working with static files see [Managing static files](https://docs.djangoproject.com/en/6.1/howto/static-files/) in the Django documentation.
+The `{% static %}` tag only produces a URL, such as `/static/css/styles.css`.
+Something still has to answer requests for that URL with the file's contents, and what does that is different during development and in production.
+
+**Where static files live.**
+Each app keeps its static files in a folder called **static** inside the app, which is why you put **styles.css** in **/locallibrary/catalog/static/css/**.
+Django's _finders_ look in the **static** folder of every app in `INSTALLED_APPS` (including Django's own apps, such as the admin site), plus any extra folders listed in the [`STATICFILES_DIRS`](https://docs.djangoproject.com/en/6.1/ref/settings/#std-setting-STATICFILES_DIRS) setting.
+The path you give to `{% static %}` is relative to those folders, so `'css/styles.css'` means "**css/styles.css** inside whichever static folder has it".
+
+> [!NOTE]
+> If two apps both had a **static/css/styles.css**, Django would use whichever one it found first.
+> Larger projects avoid this by adding a folder named after the app, as in **catalog/static/catalog/css/styles.css** (referenced as `{% static 'catalog/css/styles.css' %}`).
+> LocalLibrary has only one app, so we keep the paths short.
+
+**During development.**
+When `DEBUG` is `True`, the development server (`runserver`) uses the finders to serve static files directly from your apps' **static** folders.
+You don't need to add anything to **urls.py**, and when you edit a CSS file, reloading the page shows the change.
+(The finders only notice a **static** folder that existed when the server started, so if you just created **catalog/static/**, restart the server.)
+
+**In production.**
+When `DEBUG` is `False`, the development server stops serving static files, and your site loads without its CSS.
+This is deliberate: searching every app's folders on every request is slow, and Django's developers didn't want an inefficient (and not security-audited) file server running in production by accident.
+Instead, a deployed site serves static files in two steps:
+
+1. Run `python manage.py collectstatic` when you build or deploy the site.
+   It uses the finders to copy every static file, from every app, into the single folder named by `STATIC_ROOT` (we set this to **staticfiles** in Part 2).
+2. Have something efficient serve the contents of `STATIC_ROOT` at `STATIC_URL`.
+   Common choices are:
+   - A web server such as nginx or Caddy, which serves the folder directly, without involving Django at all.
+   - The [WhiteNoise](https://whitenoise.readthedocs.io/) package, which lets your Django app serve the folder itself, efficiently enough for production and with no extra server to configure.
+   - An object storage service or content delivery network (CDN), such as Amazon S3 or Cloudflare, configured through the `"staticfiles"` entry of the [`STORAGES`](https://docs.djangoproject.com/en/6.1/ref/settings/#std-setting-STORAGES) setting (usually with the [django-storages](https://django-storages.readthedocs.io/en/latest/) package). In this case `collectstatic` uploads the files to the service.
+
+   Because `{% static %}` builds URLs from `STATIC_URL`, your templates don't change whichever option you choose.
+
+Production setups often also use a storage class such as [`ManifestStaticFilesStorage`](https://docs.djangoproject.com/en/6.1/ref/contrib/staticfiles/#manifeststaticfilesstorage), which makes `collectstatic` add a hash of each file's contents to its name (for example, **styles.4a5b1c2d.css**).
+Browsers can then cache the files indefinitely, because a changed file gets a new name (and `{% static %}` produces the new URL automatically).
+
+We use WhiteNoise when we deploy LocalLibrary in [Django Tutorial Part 11: Deploying Django to production](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Deployment#static_files).
+You can try the first step now, though. Run:
+
+```bash
+uv run python manage.py collectstatic
+```
+
+Django reports how many files it copied. Open the new **staticfiles** folder: as well as your **css/styles.css**, it contains the CSS, JavaScript, and images used by the admin site, which came from the **static** folder inside the `django.contrib.admin` app.
+Nothing reads this folder while `DEBUG` is `True`, and it is listed in **.gitignore**, so you can delete it whenever you like (and you need to run `collectstatic` again if you want it to include later changes).
+
+For more information on working with static files see [How to manage static files](https://docs.djangoproject.com/en/6.1/howto/static-files/) and [How to deploy static files](https://docs.djangoproject.com/en/6.1/howto/static-files/deployment/) in the Django documentation.
 
 #### Linking to URLs
 
@@ -415,13 +460,15 @@ Here are a couple of tasks to test your familiarity with model queries, views, a
 2. Modify the [view](#view_function-based) to generate counts for _genres_ and _books_ that contain a particular word (case insensitive), and pass the results to the `context`. You accomplish this in a similar way to creating and using `num_books` and `num_instances_available`. Then update the [index template](#the_index_template) to include these variables.
 
 3. Add an image of [this character](https://w3.cs.jmu.edu/cs347/f26/stewart.jpeg) to the end of your index page.
-    ```html
-    <img src="https://w3.cs.jmu.edu/cs347/f26/stewart.jpeg" alt="Dr. Stewart rockin' that Carolina Blue koy Kahala">
-    ```
-    Did it work? 😅
+   ```html
+   <img
+     src="https://w3.cs.jmu.edu/cs347/f26/stewart.jpeg"
+     alt="Dr. Stewart rockin' that Carolina Blue koy Kahala" />
+   ```
+   Did it work? 😅
 4. Download a small copy of [this cutie pie](https://en.wikipedia.org/wiki/Brown_bear#/media/File:2010-kodiak-bear-1.jpg) to your project. Add that image after the previous one.
-    1. Did it work? 😬
-    2. If not, what's the difference between the 2 images? How might you fix it?
+   1. Did it work? 😬
+   2. If not, what's the difference between the 2 images? How might you fix it?
 
 ## Summary
 

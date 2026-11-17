@@ -150,6 +150,10 @@ Without this line, Django thinks that every request is insecure, and you will ge
 ### Static files
 
 With `DEBUG=False`, Django stops serving static files, so without some extra setup your deployed site loads with no CSS.
+As described in [How Django serves static files](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Home_page#how_django_serves_static_files), a deployed site needs two things:
+
+- **`collectstatic`**, to copy the static files from all of your apps (including the admin site) into `STATIC_ROOT`. The Dockerfile you'll add [below](#add_a_dockerfile) runs it each time the image is built, so the collected files are part of the image.
+- **Something to serve `STATIC_ROOT`.** We could have Caddy serve it, as we do for media files [later](#media_files), but then Caddy would need its own copy of the files from inside the image. Instead we use WhiteNoise, which serves them from the app's own container, so static files are deployed with the code and need no extra configuration on the server. (On a larger site, you might instead upload them to an object storage service or CDN.)
 
 Check that **settings.py** sets `STATIC_ROOT` (you added it in [Django Tutorial Part 2: Creating a skeleton website](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/skeleton_website#hooking_up_the_url_mapper)).
 This is where `collectstatic` gathers your static files, and the Docker build fails without it:

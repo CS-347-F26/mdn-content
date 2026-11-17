@@ -128,7 +128,7 @@ locallibrary/
         views.py    # newly created
         __init__.py # newly created
         migrations/ # newly created
-    locallibrary_config/ 
+    locallibrary_config/
        __init__.py
        settings.py
        urls.py
@@ -277,19 +277,12 @@ Remove this slash as it is unnecessary.
 If this pattern is targeted in an include(), ensure the include() pattern has a trailing '/'.
 ```
 
-Django does not serve static files like CSS, JavaScript, and images by default, but it can be useful for the development web server to do so while you're creating your site. As a final addition to this URL mapper, you can enable the serving of static files during development by appending the following lines.
+Your site will also need _static files_: the CSS, JavaScript, and images that are part of your code.
+You don't need to add any URL patterns for these.
+The `django.contrib.staticfiles` app (already in `INSTALLED_APPS`) makes the development server serve them at `STATIC_URL` (by default, URLs starting with `/static/`), as long as `DEBUG` is `True`.
+We explain how this works, and what changes when you deploy, in [Django Tutorial Part 5: Creating our home page](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Home_page#how_django_serves_static_files).
 
-Add the following final block to the bottom of the file now:
-
-```python
-# Use static() to add URL mapping to serve static files during development (only)
-from django.conf import settings
-from django.conf.urls.static import static
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-```
-
-That block refers to `settings.STATIC_ROOT`, which **settings.py** doesn't define yet. `STATIC_ROOT` is the folder where Django's `collectstatic` command gathers all of your site's static files when you deploy it. Open **locallibrary/locallibrary_config/settings.py**, find `STATIC_URL` near the bottom of the file, and add `STATIC_ROOT` below it:
+One static files setting is worth adding now, though. `STATIC_ROOT` is the folder where Django's `collectstatic` command gathers all of your site's static files, ready to be served in production. Open **locallibrary/locallibrary_config/settings.py**, find `STATIC_URL` near the bottom of the file, and add `STATIC_ROOT` below it:
 
 ```python
 STATIC_URL = 'static/'
@@ -303,14 +296,14 @@ staticfiles/
 ```
 
 > [!NOTE]
-> There are a number of ways to extend the `urlpatterns` list (previously, we just appended a new list item using the `+=` operator to clearly separate the old and new code). We could have instead just included this new pattern-map in the original list definition:
+> There are a number of ways to extend the `urlpatterns` list (above, we appended new list items using the `+=` operator to clearly separate the old and new code). We could have instead just included the new patterns in the original list definition:
 >
 > ```python
 > urlpatterns = [
 >     path('admin/', admin.site.urls),
 >     path('catalog/', include('catalog.urls')),
 >     path('', RedirectView.as_view(url='catalog/')),
-> ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+> ]
 > ```
 
 As a final step, **create a NEW file inside your 👀 _catalog_ folder** called **urls.py**, and add the following text to define the (empty) imported `urlpatterns`. This is where we'll add our patterns as we build the application.
@@ -422,8 +415,8 @@ git pull origin main
 We won't necessarily mention this again in future, but you may find it useful to update GitHub with your changes at the end of each section in this tutorial.
 
 > [!NOTE]
-> Compare the file listing you see on github.com for your repository to what you see in the local filesystem (i.e. on your laptop).
-> Are they _exactly_ the same? Should they be? If there are differences, can you [justify all discrepancies](../development_environment/#source_code_management_with_git_and_github:~:text=.gitignore%20file)?
+> Compare the file listing you see on github.com for your repository to what you see in the local filesystem (i.e., on your laptop).
+> Are they _exactly_ the same? Should they be? If there are differences, can you [justify all discrepancies](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment#source_code_management_with_git_and_github:~:text=.gitignore%20file)?
 
 ## Challenge yourself
 

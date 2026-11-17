@@ -98,16 +98,23 @@ media/
 
 ### Serving media files during development
 
-Just like static files, Django doesn't serve media files by default.
-During development, you can ask the development server to serve them by using the same `static()` helper you used for static files.
+The development server serves static files automatically (see [How Django serves static files](/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Home_page#how_django_serves_static_files)), but it doesn't do the same for media files.
+Static files are found by looking through your apps' **static** folders, and there is nothing equivalent for uploads: they are all in `MEDIA_ROOT`, and Django needs a URL pattern that maps `MEDIA_URL` to that folder.
+Django provides the `static()` helper to create one during development.
 
-Open **locallibrary/locallibrary_config/urls.py** and add the following line to the bottom of the file, after the line that serves static files:
+Open **locallibrary/locallibrary_config/urls.py** and add the following lines to the bottom of the file:
 
 ```python
+# Use static() to serve uploaded media files during development (only)
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 ```
 
-The `settings` and `static` imports were added in Part 2, so you don't need to import them again.
+> [!NOTE]
+> Despite its name, `static()` is for serving any folder of files at a URL prefix during development.
+> You'll see many tutorials also use it for `STATIC_URL`, but that isn't needed: `django.contrib.staticfiles` already serves static files during development, and it does so from your apps' **static** folders, not `STATIC_ROOT`.
 
 > [!NOTE]
 > `static()` only adds URL patterns when `DEBUG` is `True`.
